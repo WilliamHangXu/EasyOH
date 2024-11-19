@@ -1,0 +1,42 @@
+.layout {
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+  
+  .content {
+    max-width: 800px;
+    width: 100%;
+  }
+  
+  .card {
+    text-align: center;
+    border-radius: 8px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    margin: 16px auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form {
+    margin-top: 16px;
+    text-align: left;
+  }
+  
+  .form .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  .success-message {
+    margin-top: 16px;
+    display: block;
+  }
+  
+  .secondary-card {
+    text-align: left;
+  }
+  

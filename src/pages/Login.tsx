@@ -1,11 +1,14 @@
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { auth } from "../config/Firebase";
 import { useNavigate, Link } from "react-router-dom";
-import { Button } from "antd";
+import { Button, Typography, Layout, Card, Input, Form } from "antd";
+import "../css/Login.css";
 
 const db = getFirestore();
+const { Title, Text } = Typography;
+const { Content } = Layout;
 
 function Login() {
   const [email, setEmail] = useState<string>("");
@@ -13,9 +16,9 @@ function Login() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleLogin = async (values: { email: string; password: string }) => {
     try {
+      const { email, password } = values;
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -45,30 +48,55 @@ function Login() {
   };
 
   return (
-    <>
-      <h1>Login</h1>
-      <p>Welcome to the login page!</p>
-      <form onSubmit={handleLogin}>
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button htmlType="submit">Login</Button>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <Link to="/">Home Page</Link>
-      <Link to="/signup">New User? Sign Up</Link>
-    </>
+    <Layout className="layout">
+      <Content className="content">
+        <Card className="card">
+          <Title level={2}>Login</Title>
+          <Text type="secondary">Welcome to the login page!</Text>
+          <Form className="form" onFinish={handleLogin}>
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  type: "email",
+                  message: "Please input your email!",
+                },
+              ]}
+            >
+              <Input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                { required: true, message: "Please input your password!" },
+              ]}
+            >
+              <Input.Password
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Login
+            </Button>
+          </Form>
+          {error && <Text type="danger">{error}</Text>}
+          <div className="links">
+            <Link to="/">Home Page</Link>
+            <Link to="/signup">New User? Sign Up</Link>
+          </div>
+        </Card>
+      </Content>
+    </Layout>
   );
 }
 

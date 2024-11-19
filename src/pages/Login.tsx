@@ -1,7 +1,7 @@
 import { useState, FormEvent } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { auth } from "../config/firebase";
+import { auth } from "../config/Firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "antd";
 
@@ -16,7 +16,6 @@ function Login() {
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      // Sign in the user
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -24,8 +23,8 @@ function Login() {
       );
       const user = userCredential.user;
 
-      // Fetch role from Firestore
-      const userDoc = await getDoc(doc(db, "users", user.uid)); // Assuming `users` collection holds roles
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
       if (!userDoc.exists()) {
         setError("Role information not found for this user.");
         return;
@@ -33,13 +32,11 @@ function Login() {
 
       const { role } = userDoc.data() as { role: string };
       if (role === "instructor") {
-        // Redirect to instructor dashboard
         navigate("/instructor-dashboard");
-      } else if (role === "TA") {
-        // Redirect to TA dashboard
+      } else if (role === "ta") {
         navigate("/ta-dashboard");
       } else {
-        setError("Unknown role.");
+        setError("!Unknown role!");
       }
     } catch (error) {
       console.error("Error logging in:", error);
@@ -70,6 +67,7 @@ function Login() {
       </form>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <Link to="/">Home Page</Link>
+      <Link to="/signup">New User? Sign Up</Link>
     </>
   );
 }

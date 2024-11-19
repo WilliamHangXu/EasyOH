@@ -26,3 +26,5 @@ DB Design:
    3. startTime: datetime
    4. endTime: datetime
    5. isRecurring: boolean
+
+Whenever an email is added to user as instructor, it should also add to authorized_emails!

@@ -5,9 +5,16 @@ import { getFirestore, doc, setDoc } from "firebase/firestore";
 const db = getFirestore();
 function Instructor() {
   const [email, setEmail] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("Adding TA with email:", email);
+    await setDoc(doc(db, "authorized_emails", email), {
+      email: email,
+    });
+    setMessage("Added TA with email: " + email);
+    setEmail("");
   };
   return (
     <div>
@@ -22,6 +29,7 @@ function Instructor() {
         />
         <Button htmlType="submit">Submit</Button>
       </form>
+      {message !== "" && <p>{message}</p>}
 
       <p>Maybe display a list of current TAs</p>
       <p>Display Calendar</p>

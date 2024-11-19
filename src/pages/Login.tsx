@@ -52,11 +52,15 @@ function Login() {
       <Content className="content">
         <Card className="card">
           <Title level={2}>Login</Title>
-          <Text type="secondary">Welcome to the login page!</Text>
+          <Text type="secondary">
+            Login only supported for TA and Instructors.
+          </Text>
           <Form className="form" onFinish={handleLogin}>
             <Form.Item
               label="Email"
               name="email"
+              labelCol={{ span: 24 }} // Ensure label takes a full row
+              wrapperCol={{ span: 24 }} // Ensure input takes a full row
               rules={[
                 {
                   required: true,
@@ -75,6 +79,8 @@ function Login() {
             <Form.Item
               label="Password"
               name="password"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
               rules={[
                 { required: true, message: "Please input your password!" },
               ]}
@@ -92,7 +98,7 @@ function Login() {
           {error && <Text type="danger">{error}</Text>}
           <div className="links">
             <Link to="/">Home Page</Link>
-            <Link to="/signup">New User? Sign Up</Link>
+            <Link to="/signup">TA Sign Up</Link>
           </div>
         </Card>
       </Content>

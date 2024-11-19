@@ -100,6 +100,8 @@ function Signup() {
             <Form.Item
               label="Email"
               name="email"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
               rules={[
                 {
                   required: true,
@@ -118,6 +120,8 @@ function Signup() {
             <Form.Item
               label="Password"
               name="password"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
               rules={[
                 { required: true, message: "Please input your password!" },
               ]}
@@ -131,6 +135,8 @@ function Signup() {
             <Form.Item
               label="Retype Password"
               name="password2"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
               rules={[
                 { required: true, message: "Please retype your password!" },
               ]}

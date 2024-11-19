@@ -1,3 +1,4 @@
+// NOTE: This is not in use.
 import { gapi } from "gapi-script";
 import { useEffect } from "react";
 

@@ -21,16 +21,27 @@
     margin: auto;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
-  
+
   .form {
     margin-top: 16px;
     text-align: left;
   }
   
   .form .ant-form-item {
+    display: block;
     margin-bottom: 16px;
   }
-  
+
+  .ant-form-item-label > label {
+    display: block;
+    font-weight: bold;
+  }
+
+  .ant-input,
+  .ant-input-password {
+    width: 100%;
+  }
+
   .links {
     margin-top: 24px;
     display: flex;

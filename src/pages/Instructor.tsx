@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Input,
@@ -8,8 +8,9 @@ import {
   Card,
   message as antdMessage,
 } from "antd";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import "../css/Instructor.css";
+import Message from "../components/Instructor/Message";
 
 const { Title, Text } = Typography;
 const { Content } = Layout;
@@ -19,11 +20,13 @@ const db = getFirestore();
 function Instructor() {
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  useEffect(() => {
+    //
+  }, []);
 
   const handleSubmit = async (values: { email: string }) => {
     try {
       const email = values.email;
-      console.log("Adding TA with email:", email);
       await setDoc(doc(db, "authorized_emails", email), { email });
       setMessage(`Added TA with email: ${email}`);
       setEmail("");
@@ -74,6 +77,12 @@ function Instructor() {
           <Text>List of current TAs will be displayed here.</Text>
           <Text>Calendar overview for classes will go here.</Text>
           <Text>Awaited messages will be shown here.</Text>
+        </Card>
+        <Card className="card secondary-card">
+          <Title level={4}>Messages</Title>
+          <Message />
+          <Message />
+          <Message />
         </Card>
       </Content>
     </Layout>

@@ -32,14 +32,18 @@ function Signup() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
   const navigate = useNavigate();
 
   const createUser = async (values: {
     email: string;
     password: string;
     password2: string;
+    firstName: string;
+    lastName: string;
   }) => {
-    const { email, password, password2 } = values;
+    const { email, password, password2, firstName, lastName } = values;
 
     // Case 1: check if passwords match
     if (password !== password2) {
@@ -51,7 +55,9 @@ function Signup() {
       // Case 2: check if instructor has authorized the email
       const userDoc = await getDoc(doc(db, "authorized_emails", email));
       if (!userDoc.exists()) {
-        antdMessage.error("Sorry! Email not authorized");
+        antdMessage.error(
+          "Email not authorized! Are you pretending to be a TA?"
+        );
         return;
       }
 
@@ -76,6 +82,8 @@ function Signup() {
       await setDoc(doc(db, "users", user.uid), {
         email,
         role: "ta",
+        firstName: firstName,
+        lastName: lastName,
       });
 
       antdMessage.success(
@@ -92,7 +100,7 @@ function Signup() {
     <Layout className="layout">
       <Content className="content">
         <Card className="card">
-          <Title level={2}>Signup</Title>
+          <Title level={2}>TA Signup</Title>
           <Text type="secondary">
             If you are an instructor, you don't need to sign up!
           </Text>
@@ -145,6 +153,38 @@ function Signup() {
                 placeholder="Retype your password"
                 value={password2}
                 onChange={(e) => setPassword2(e.target.value)}
+              />
+            </Form.Item>
+            <Form.Item
+              label={
+                <div className="form-flex">
+                  <span className="form-label">Preferred First Name</span>
+                </div>
+              }
+              name="firstName"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+              rules={[{ required: true, message: "Enter your name, please!" }]}
+              help={"This is the name that will be displayed to students!"}
+            >
+              <Input
+                placeholder="Enter your preferred name"
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Last Name"
+              name="lastName"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+              rules={[
+                { required: true, message: "Please enter your last name" },
+              ]}
+            >
+              <Input
+                placeholder="Enter your last name"
+                onChange={(e) => setLastName(e.target.value)}
               />
             </Form.Item>
             <Button type="primary" htmlType="submit" block>

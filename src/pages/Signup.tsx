@@ -19,6 +19,7 @@ import {
   where,
   getDocs,
   setDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "../css/Signup.css";
@@ -29,6 +30,8 @@ const { Content } = Layout;
 const db = getFirestore();
 
 function Signup() {
+  const [fname, setFirstName] = useState<string>("");
+  const [lname, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");
@@ -49,7 +52,7 @@ function Signup() {
 
     try {
       // Case 2: check if instructor has authorized the email
-      const userDoc = await getDoc(doc(db, "authorized_emails", email));
+      const userDoc = await getDoc(doc(db, "authorizedEmails", email));
       if (!userDoc.exists()) {
         antdMessage.error("Sorry! Email not authorized");
         return;
@@ -74,8 +77,11 @@ function Signup() {
       const user = userCredential.user;
 
       await setDoc(doc(db, "users", user.uid), {
+        fname,
+        lname,
         email,
         role: "ta",
+        joinTime: Timestamp.now(),
       });
 
       antdMessage.success(
@@ -118,6 +124,46 @@ function Signup() {
               />
             </Form.Item>
             <Form.Item
+              label="First name"
+              name="firstname"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+              rules={[
+                {
+                  required: true,
+                  type: "string",
+                  message: "Please input a valid name!",
+                },
+              ]}
+            >
+              <Input
+                type="firstname"
+                placeholder="Enter your first name"
+                value={fname}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Last name"
+              name="lastname"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+              rules={[
+                {
+                  required: true,
+                  type: "string",
+                  message: "Please input a valid name!",
+                },
+              ]}
+            >
+              <Input
+                type="lastname"
+                placeholder="Enter your last name"
+                value={lname}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </Form.Item>
+            <Form.Item
               label="Password"
               name="password"
               labelCol={{ span: 24 }}
@@ -133,7 +179,7 @@ function Signup() {
               />
             </Form.Item>
             <Form.Item
-              label="Retype Password"
+              label="Confirm password"
               name="password2"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}

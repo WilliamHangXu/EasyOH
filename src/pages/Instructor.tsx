@@ -38,7 +38,6 @@ function Instructor() {
           collection(db, "authorized_emails")
         );
         const tas: { email: string; role: string }[] = [];
-        console.log(querySnapshot);
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           if (data.role === "ta") {

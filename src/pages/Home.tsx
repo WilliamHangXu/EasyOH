@@ -14,6 +14,12 @@ function Home() {
           <Text type="secondary">
             Welcome to this office hour that does not exist yet!
           </Text>
+          <iframe
+            src={import.meta.env.VITE_CALENDAR_EMBED_URL}
+            style={{ border: 0 }}
+            width="800"
+            height="600"
+          ></iframe>
           <div className="button-container">
             <Button type="primary" size="large">
               <Link to="/login">Login</Link>

@@ -1,0 +1,83 @@
+/* TAOfficeHoursPage.css */
+
+.ta-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .ta-heading {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .office-hours-section,
+  .change-request-section,
+  .requests-section,
+  .calendar-section {
+    margin-bottom: 40px;
+  }
+  
+  .office-hours-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .office-hours-list li {
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .change-request-form .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .change-request-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .change-request-form input,
+  .change-request-form select,
+  .change-request-form textarea {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .submit-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .requests-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .requests-table th,
+  .requests-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .requests-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+  }
+  
+  .calendar-section iframe {
+    width: 100%;
+    height: 600px;
+    border: 0;
+  }
+  

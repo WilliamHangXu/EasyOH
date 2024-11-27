@@ -1,5 +1,9 @@
+import { Timestamp } from "firebase/firestore";
+
 interface OfficeHour {
-  ohId: string;
+  userId: string;
+  createdBy: string;
+  createdAt: Timestamp;
   dayOfWeek: number;
   startTime: string;
   endTime: string;

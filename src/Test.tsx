@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   initializeGapiClient,
   listCalendars,
@@ -7,15 +7,10 @@ import {
 } from "./services/gapiService";
 import { initializeGisClient } from "./services/gisService";
 
-const CLIENT_ID =
-  "737738370870-p7k6p9ins0jnmavv8j6vh9f81enbbuo4.apps.googleusercontent.com";
-const API_KEY = "AIzaSyDOIn-bu9tZF-Msm1xkwdXtnCs_yFLhEo4";
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
 ];
 const SCOPES = "https://www.googleapis.com/auth/calendar";
-const CALENDAR_ID =
-  "c_a75eb3259ff573832bda22cd61789899a413bc51959e52f99e31e79fc2ed3176@group.calendar.google.com";
 
 const FIXED_EVENT = {
   summary: "Office Hours",
@@ -31,7 +26,7 @@ const FIXED_EVENT = {
   },
 };
 
-const GoogleCalendar: React.FC = () => {
+function GoogleCalendar() {
   const [gapiInited, setGapiInited] = useState(false);
   const [gisInited, setGisInited] = useState(false);
   const [tokenClient, setTokenClient] = useState<any | null>(null);
@@ -56,14 +51,17 @@ const GoogleCalendar: React.FC = () => {
   }, []);
 
   const onGapiLoaded = async () => {
-    await initializeGapiClient(API_KEY, DISCOVERY_DOCS);
+    await initializeGapiClient(
+      import.meta.env.VITE_CALENDAR_API_KEY,
+      DISCOVERY_DOCS
+    );
     setGapiInited(true);
     maybeEnableButtons();
   };
 
   const onGisLoaded = () => {
     const client = initializeGisClient(
-      CLIENT_ID,
+      import.meta.env.VITE_CALENDAR_CLIENT_ID,
       SCOPES,
       async (response: any) => {
         if (response.error) {
@@ -118,7 +116,7 @@ const GoogleCalendar: React.FC = () => {
         .join("\n");
       setCalendars(calendarOutput);
 
-      const eventsList = await listEvents(CALENDAR_ID);
+      const eventsList = await listEvents(import.meta.env.VITE_CALENDAR_ID);
       const eventsOutput = eventsList
         .map(
           (event) =>
@@ -133,7 +131,10 @@ const GoogleCalendar: React.FC = () => {
 
   const handleAddEvent = async () => {
     try {
-      const result = await addEvent("primary", FIXED_EVENT);
+      const result = await addEvent(
+        import.meta.env.VITE_CALENDAR_ID,
+        FIXED_EVENT
+      );
       alert(`Event created: ${result.htmlLink}`);
     } catch (error) {
       console.error("Error creating event:", error);
@@ -150,6 +151,12 @@ const GoogleCalendar: React.FC = () => {
         Sign Out
       </button>
       <button onClick={handleAddEvent}>Add Event</button>
+      <iframe
+        src={import.meta.env.VITE_CALENDAR_EMBED_URL}
+        style={{ border: 0 }}
+        width="800"
+        height="600"
+      ></iframe>
       <pre id="calendars" style={{ whiteSpace: "pre-wrap" }}>
         {calendars}
       </pre>
@@ -158,6 +165,6 @@ const GoogleCalendar: React.FC = () => {
       </pre>
     </div>
   );
-};
+}
 
 export default GoogleCalendar;

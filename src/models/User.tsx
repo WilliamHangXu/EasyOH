@@ -4,7 +4,6 @@ interface User {
   role: "instructor" | "ta";
   email: string;
   joinTime: string;
-  isActive: boolean;
 }
 
 export default User;

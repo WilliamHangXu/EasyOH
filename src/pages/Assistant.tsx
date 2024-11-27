@@ -35,7 +35,9 @@ function Assistant() {
   const [user] = useAuthState(auth);
   const [officeHours, setOfficeHours] = useState<OfficeHour[]>([]);
   const [slotCount, setSlotCount] = useState<number>(1);
-  const [slots, setSlots] = useState<{ start: string; end: string }[]>([]);
+  const [slots, setSlots] = useState<
+    { day: string; start: string; end: string }[]
+  >([]);
   const [noOh, setNoOh] = useState<boolean>(false);
   console.log(user);
 
@@ -52,24 +54,24 @@ function Assistant() {
   useEffect(() => {
     // if (!user) return;
 
-    const fetchOfficeHours = async () => {
-      const officeHoursQuery = query(
-        collection(db, "officeHours"),
-        where("userId", "==", user?.uid)
-      );
-      const querySnapshot = await getDocs(officeHoursQuery);
-      const officeHoursData = querySnapshot.docs.map((doc) => ({
-        userId: doc.id,
-        ...doc.data(),
-      })) as OfficeHour[];
-      setOfficeHours(officeHoursData);
-      if (officeHoursData.length === 0) {
-        setNoOh(true);
-      }
-    };
-    // fetchOfficeHours();
-    setNoOh(true);
+    fetchOfficeHours();
   }, []);
+
+  const fetchOfficeHours = async () => {
+    const officeHoursQuery = query(
+      collection(db, "officeHours"),
+      where("userId", "==", user?.uid)
+    );
+    const querySnapshot = await getDocs(officeHoursQuery);
+    const officeHoursData = querySnapshot.docs.map((doc) => ({
+      userId: doc.id,
+      ...doc.data(),
+    })) as OfficeHour[];
+    setOfficeHours(officeHoursData);
+    if (officeHoursData.length === 0) {
+      setNoOh(true);
+    }
+  };
 
   const handleTimeChange = (
     index: number,
@@ -94,13 +96,22 @@ function Assistant() {
     setSlots(updatedSlots);
   };
 
+  const handleDayChange = (index: number, value: string) => {
+    const newSlots = [...slots];
+    newSlots[index] = {
+      ...newSlots[index],
+      day: value,
+    };
+    setSlots(newSlots);
+  };
+
   return (
     <>
       <h1>Welcome, {user?.email}</h1>
       <header className="ta-header">
-        <button onClick={handleLogout} className="logout-button">
+        <Button onClick={handleLogout} className="logout-button">
           Log Out
-        </button>
+        </Button>
       </header>
       {noOh && (
         <>

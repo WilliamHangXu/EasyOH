@@ -1,17 +1,14 @@
-import { Timestamp } from "firebase/firestore";
 interface ChangeRequest {
-  change_request_id: string;
-  ohId: string;
+  taId: string;
+  instructorId: string;
+  sendTime: string;
   action: "create" | "change" | "cancel";
-  date: string;
-  newDate?: string;
+  oldStartTime?: string;
+  oldEndTime?: string;
   newStartTime?: string;
   newEndTime?: string;
-  status: "pending" | "approved" | "rejected";
-  submitTime: Timestamp;
-  processed_at?: Timestamp;
-  response_note?: string;
-  note?: string;
+  submittedAt: string;
+  noteToInstructor?: string;
 }
 
 export default ChangeRequest;

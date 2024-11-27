@@ -7,7 +7,10 @@ import {
   Card,
   message as antdMessage,
 } from "antd";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { useState } from "react";
 import { auth } from "../config/Firebase";
 import {
@@ -53,10 +56,10 @@ function Signup() {
 
     try {
       // Case 2: check if instructor has authorized the email
-      const userDoc = await getDoc(doc(db, "authorized_emails", email));
+      const userDoc = await getDoc(doc(db, "authorizedEmails", email));
       if (!userDoc.exists()) {
         antdMessage.error(
-          "Email not authorized! Are you pretending to be a TA?"
+          "Email not authorized! If you are a TA, please contact your instructor."
         );
         return;
       }
@@ -67,8 +70,11 @@ function Signup() {
       );
 
       if (!existingUserSnapshot.empty) {
-        antdMessage.error("User already signed up! Please log in.");
-        navigate("/login");
+        await signInWithEmailAndPassword(auth, email, password);
+        antdMessage.success(
+          "User Already signed up! Redirecting to your dashboard..."
+        );
+        navigate("/ta-dashboard");
         return;
       }
 
@@ -84,6 +90,7 @@ function Signup() {
         role: "ta",
         firstName: firstName,
         lastName: lastName,
+        joinTime: new Date().toISOString(),
       });
 
       antdMessage.success(

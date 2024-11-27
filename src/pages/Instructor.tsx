@@ -36,6 +36,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../config/Firebase";
 import OfficeHour from "../models/OfficeHour";
 import dayjs from "dayjs";
+import CalendarPage from "./CalendarPage";
 
 const { Title, Text } = Typography;
 const { Content } = Layout;
@@ -259,7 +260,7 @@ function Instructor() {
             </Form.Item>
           </Form>
         </Modal>
-        <h2>Your OH for the Week</h2>
+        <h2>Your Recent Office Hours</h2>
         <List
           bordered
           dataSource={officeHours}
@@ -362,14 +363,9 @@ function Instructor() {
           <Button type="primary" onClick={handleAddOfficeHour}>
             Add Office Hour
           </Button>
-          <iframe
-            src={import.meta.env.VITE_CALENDAR_EMBED_URL}
-            style={{ border: 0 }}
-            width="800"
-            height="600"
-          ></iframe>
         </Form>
       </Content>
+      <CalendarPage />
     </Layout>
   );
 }

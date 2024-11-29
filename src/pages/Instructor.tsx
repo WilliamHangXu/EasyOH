@@ -15,6 +15,7 @@ import {
   Row,
   Col,
   Space,
+  Collapse,
 } from "antd";
 import {
   getFirestore,
@@ -180,55 +181,83 @@ function Instructor() {
   return (
     <Layout className="layout">
       <Content className="content">
-        <Card className="card">
-          <Title level={2}>Welcome, {user?.email}</Title>
-          <Button onClick={handleLogout} className="logout-button">
-            Log Out
-          </Button>
-          <Text type="secondary">
-            Currently Registered Teaching Assistants:
-          </Text>
+        <Title level={2}>Welcome, {user?.email}</Title>
+        <Button onClick={handleLogout} className="logout-button">
+          Log Out
+        </Button>
+        <Row gutter={16}>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card className="card">
+              <h3>Currently Registered Teaching Assistants:</h3>
 
-          {isLoading ? (
-            <Text>Loading TA list...</Text>
-          ) : (
-            <List
-              dataSource={taList}
-              renderItem={(ta) => (
-                <List.Item
-                  actions={[
-                    <Button
-                      type="link"
-                      danger
-                      onClick={() => handleDeleteTA(ta.email)}
+              {isLoading ? (
+                <Text>Loading TA list...</Text>
+              ) : (
+                <List
+                  dataSource={taList}
+                  renderItem={(ta) => (
+                    <List.Item
+                      actions={[
+                        <Button
+                          type="link"
+                          danger
+                          onClick={() => handleDeleteTA(ta.email)}
+                        >
+                          Delete
+                        </Button>,
+                      ]}
                     >
-                      Delete
-                    </Button>,
-                  ]}
-                >
-                  <Text>
-                    {ta.firstName} {ta.lastName} - {ta.email}
-                  </Text>
-                </List.Item>
+                      <Text>
+                        {ta.firstName} {ta.lastName} - {ta.email}
+                      </Text>
+                    </List.Item>
+                  )}
+                />
               )}
-            />
-          )}
 
-          <Button
-            type="primary"
-            onClick={() => setIsModalVisible(true)}
-            style={{ marginTop: "20px" }}
-            block
-          >
-            Add a TA
-          </Button>
-        </Card>
-
-        <Card className="card secondary-card">
-          <Title level={4}>Additional Information</Title>
-          <Text>Calendar overview for classes will go here.</Text>
-          <Text>Awaited messages will be shown here.</Text>
-        </Card>
+              <Button
+                type="primary"
+                onClick={() => setIsModalVisible(true)}
+                style={{ marginTop: "20px" }}
+                block
+              >
+                Add a TA
+              </Button>
+            </Card>
+          </Col>
+          {/* Message Section */}
+          {/* Message Section */}
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card className="card">
+              <div className="message-section">
+                <h3>Pending Change Requests:</h3>
+                <Collapse>
+                  <Collapse.Panel header="Yuanhe Li" key="1">
+                    <div className="change-request-details">
+                      <p>
+                        <strong>From:</strong> Saturday 10 am - 11 am
+                      </p>
+                      <p>
+                        <strong>To:</strong> Sunday 10 am - 11 am
+                      </p>
+                      <p>
+                        <strong>Note:</strong> I was sick Saturday!
+                      </p>
+                      <div className="action-buttons">
+                        <Button type="primary" style={{ marginRight: "10px" }}>
+                          Approve (doesn't work)
+                        </Button>
+                        <Button type="default" danger>
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  </Collapse.Panel>
+                </Collapse>
+              </div>
+            </Card>
+          </Col>
+        </Row>
 
         {/* Modal for adding a new TA */}
         <Modal
@@ -261,6 +290,7 @@ function Instructor() {
           </Form>
         </Modal>
         <h2>Your Recent Office Hours</h2>
+        <div>Your office hour, up to 2 months from now.</div>
         <List
           bordered
           dataSource={officeHours}
@@ -297,7 +327,8 @@ function Instructor() {
             </List.Item>
           )}
         />
-        <h2>Add a New Office Hour</h2>
+        <h2>Add a Recurrence Office Hour</h2>
+        <p>Not feeling well? Try Edit Recent Office Hours above!</p>
         <Form layout="vertical">
           <Row gutter={16}>
             <Col span={8}>

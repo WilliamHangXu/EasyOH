@@ -143,13 +143,13 @@ function CalendarPage() {
 
   return (
     <div>
-      <button id="authorize_button" onClick={handleAuthClick}>
+      {/* <button id="authorize_button" onClick={handleAuthClick}>
         Authorize
       </button>
       <button id="signout_button" onClick={handleSignoutClick}>
         Sign Out
       </button>
-      <button onClick={handleAddEvent}>Add Event</button>
+      <button onClick={handleAddEvent}>Add Event</button> */}
       <iframe
         src={import.meta.env.VITE_CALENDAR_EMBED_URL}
         style={{ border: 0 }}

@@ -73,14 +73,14 @@ function GoogleCalendar() {
     );
     setTokenClient(client);
     setGisInited(true);
-    maybeEnableButtons();
+    // maybeEnableButtons();
   };
 
-  const maybeEnableButtons = () => {
-    if (gapiInited && gisInited) {
-      document.getElementById("authorize_button")!.style.visibility = "visible";
-    }
-  };
+  // const maybeEnableButtons = () => {
+  //   if (gapiInited && gisInited) {
+  //     document.getElementById("authorize_button")!.style.visibility = "visible";
+  //   }
+  // };
 
   const handleAuthClick = () => {
     if (tokenClient) {
@@ -144,13 +144,13 @@ function GoogleCalendar() {
   return (
     <div>
       <p>Google Calendar API Quickstart</p>
-      <button id="authorize_button" onClick={handleAuthClick}>
+      {/* <button id="authorize_button" onClick={handleAuthClick}>
         Authorize
       </button>
       <button id="signout_button" onClick={handleSignoutClick}>
         Sign Out
       </button>
-      <button onClick={handleAddEvent}>Add Event</button>
+      <button onClick={handleAddEvent}>Add Event</button> */}
       <iframe
         src={import.meta.env.VITE_CALENDAR_EMBED_URL}
         style={{ border: 0 }}

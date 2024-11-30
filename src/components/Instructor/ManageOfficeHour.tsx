@@ -10,6 +10,8 @@ import {
   Col,
   Space,
   List,
+  Alert,
+  Radio,
 } from "antd";
 import {
   getFirestore,
@@ -45,6 +47,10 @@ interface ManageOHProps {
 
 const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
   const [officeHours, setOfficeHours] = useState<OfficeHour[]>([]);
+  const [officeHourType, setOfficeHourType] = useState<
+    "temporary" | "recurrence"
+  >("temporary");
+  const [showWarning, setShowWarning] = useState(false);
   const [newOfficeHour, setNewOfficeHour] = useState({
     dayOfWeek: 0,
     startTime: "",
@@ -56,6 +62,15 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
     if (user) fetchOfficeHours();
   }, [user]);
 
+  const handleTypeChange = (e: any) => {
+    const selectedType = e.target.value;
+    setOfficeHourType(selectedType);
+    if (selectedType === "recurrence") {
+      setShowWarning(true); // Show the warning when recurrence is selected
+    } else {
+      setShowWarning(false); // Hide the warning for temporary
+    }
+  };
   const fetchOfficeHours = async () => {
     const officeHoursQuery = query(
       collection(db, "officeHours"),
@@ -193,9 +208,28 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
         )}
       ></List>
 
-      <h2>Add a Recurrence Office Hour</h2>
+      <h2>Add an Office Hour</h2>
       <p>Not feeling well? Try Edit Recent Office Hours above!</p>
       <Form layout="vertical">
+        {/* Radio Group for Office Hour Type */}
+        <Form.Item label="Type of Office Hour">
+          <Radio.Group onChange={handleTypeChange} value={officeHourType}>
+            <Radio value="temporary">Temporary</Radio>
+            <Radio value="recurrence">Recurrence</Radio>
+          </Radio.Group>
+        </Form.Item>
+
+        {/* Show warning when Recurrence is selected */}
+        {showWarning && (
+          <Alert
+            message="Warning"
+            description="Changing to a Recurrence Office Hour will erase all temporary edits. Please make sure you want to do this."
+            type="warning"
+            showIcon
+            style={{ marginBottom: "16px" }}
+          />
+        )}
+
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item label="Day of Week" required>

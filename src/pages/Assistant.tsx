@@ -28,6 +28,7 @@ import {
   Collapse,
 } from "antd";
 import { signOut } from "firebase/auth";
+import Header from "../components/Header";
 
 const db = getFirestore();
 const { Option } = Select;
@@ -122,74 +123,8 @@ function Assistant() {
   return (
     <>
       <Layout>
-        {noOh && (
-          <>
-            <p>
-              You have no office hours scheduled. Please start by scheduling
-              some!
-            </p>
-            <Form.Item label="Number of Time Slots">
-              <InputNumber
-                min={1}
-                max={4}
-                defaultValue={slotCount}
-                onChange={handleSlotCountChange}
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
-            {Array.from({ length: slotCount }).map((_, index) => (
-              <Row key={index} gutter={16}>
-                <Col span={8}>
-                  <Form.Item label={`Day for Slot ${index + 1}`} required>
-                    <Select
-                      placeholder="Select Day"
-                      onChange={(value) => handleDayChange(index, value)}
-                      style={{ width: "100%" }}
-                    >
-                      <Option value="Monday">Monday</Option>
-                      <Option value="Tuesday">Tuesday</Option>
-                      <Option value="Wednesday">Wednesday</Option>
-                      <Option value="Thursday">Thursday</Option>
-                      <Option value="Friday">Friday</Option>
-                      <Option value="Saturday">Saturday</Option>
-                      <Option value="Sunday">Sunday</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    label={`Start Time for Slot ${index + 1}`}
-                    required
-                  >
-                    <TimePicker
-                      format="HH:mm"
-                      onChange={(value) =>
-                        handleTimeChange(index, "start", value)
-                      }
-                      style={{ width: "100%" }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item label={`End Time for Slot ${index + 1}`} required>
-                    <TimePicker
-                      format="HH:mm"
-                      onChange={(value) =>
-                        handleTimeChange(index, "end", value)
-                      }
-                      style={{ width: "100%" }}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-            ))}
-          </>
-        )}
         <Content>
-          <Title level={2}>Welcome, {user?.email}</Title>
-          <Button onClick={handleLogout} className="logout-button">
-            Log Out
-          </Button>
+          <Header user={user} auth={auth} />
           <Row gutter={16}>
             <Col xs={24} sm={24} md={12} lg={12} xl={12}>
               <Card className="card">

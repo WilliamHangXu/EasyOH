@@ -4,7 +4,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 24px;
   }
   
   .content {
@@ -53,5 +52,12 @@
     display: flex;
     justify-content: flex-start;
     margin-top: 10px;
+  }
+  
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
   }
   

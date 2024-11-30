@@ -14,11 +14,25 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import OfficeHour from "../models/OfficeHour";
 import ChangeRequest from "../models/ChangeRequest";
 import dayjs from "dayjs";
-import { InputNumber, TimePicker, Select, Button, Form, Row, Col } from "antd";
+import {
+  InputNumber,
+  TimePicker,
+  Select,
+  Button,
+  Form,
+  Row,
+  Col,
+  Layout,
+  Typography,
+  Card,
+  Collapse,
+} from "antd";
 import { signOut } from "firebase/auth";
 
 const db = getFirestore();
 const { Option } = Select;
+const { Title, Text } = Typography;
+const { Content } = Layout;
 
 const daysOfWeek = [
   "",
@@ -107,69 +121,117 @@ function Assistant() {
 
   return (
     <>
-      <h1>Welcome, {user?.email}</h1>
-      <header className="ta-header">
-        <Button onClick={handleLogout} className="logout-button">
-          Log Out
-        </Button>
-      </header>
-      {noOh && (
-        <>
-          <p>
-            You have no office hours scheduled. Please start by scheduling some!
-          </p>
-          <Form.Item label="Number of Time Slots">
-            <InputNumber
-              min={1}
-              max={4}
-              defaultValue={slotCount}
-              onChange={handleSlotCountChange}
-              style={{ width: "100%" }}
-            />
-          </Form.Item>
-          {Array.from({ length: slotCount }).map((_, index) => (
-            <Row key={index} gutter={16}>
-              <Col span={8}>
-                <Form.Item label={`Day for Slot ${index + 1}`} required>
-                  <Select
-                    placeholder="Select Day"
-                    onChange={(value) => handleDayChange(index, value)}
-                    style={{ width: "100%" }}
+      <Layout>
+        {noOh && (
+          <>
+            <p>
+              You have no office hours scheduled. Please start by scheduling
+              some!
+            </p>
+            <Form.Item label="Number of Time Slots">
+              <InputNumber
+                min={1}
+                max={4}
+                defaultValue={slotCount}
+                onChange={handleSlotCountChange}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+            {Array.from({ length: slotCount }).map((_, index) => (
+              <Row key={index} gutter={16}>
+                <Col span={8}>
+                  <Form.Item label={`Day for Slot ${index + 1}`} required>
+                    <Select
+                      placeholder="Select Day"
+                      onChange={(value) => handleDayChange(index, value)}
+                      style={{ width: "100%" }}
+                    >
+                      <Option value="Monday">Monday</Option>
+                      <Option value="Tuesday">Tuesday</Option>
+                      <Option value="Wednesday">Wednesday</Option>
+                      <Option value="Thursday">Thursday</Option>
+                      <Option value="Friday">Friday</Option>
+                      <Option value="Saturday">Saturday</Option>
+                      <Option value="Sunday">Sunday</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label={`Start Time for Slot ${index + 1}`}
+                    required
                   >
-                    <Option value="Monday">Monday</Option>
-                    <Option value="Tuesday">Tuesday</Option>
-                    <Option value="Wednesday">Wednesday</Option>
-                    <Option value="Thursday">Thursday</Option>
-                    <Option value="Friday">Friday</Option>
-                    <Option value="Saturday">Saturday</Option>
-                    <Option value="Sunday">Sunday</Option>
-                  </Select>
-                </Form.Item>
+                    <TimePicker
+                      format="HH:mm"
+                      onChange={(value) =>
+                        handleTimeChange(index, "start", value)
+                      }
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item label={`End Time for Slot ${index + 1}`} required>
+                    <TimePicker
+                      format="HH:mm"
+                      onChange={(value) =>
+                        handleTimeChange(index, "end", value)
+                      }
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            ))}
+          </>
+        )}
+        <Content>
+          <Title level={2}>Welcome, {user?.email}</Title>
+          <Button onClick={handleLogout} className="logout-button">
+            Log Out
+          </Button>
+          <Row gutter={16}>
+            <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+              <Card className="card">
+                <h3>Currently Registered Teaching Assistants:</h3>
+              </Card>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Card className="card">
+                  <div className="message-section">
+                    <h3>Pending Change Requests:</h3>
+                    <Collapse>
+                      <Collapse.Panel header="Yuanhe Li" key="1">
+                        <div className="change-request-details">
+                          <p>
+                            <strong>From:</strong> Saturday 10 am - 11 am
+                          </p>
+                          <p>
+                            <strong>To:</strong> Sunday 10 am - 11 am
+                          </p>
+                          <p>
+                            <strong>Note:</strong> I was sick Saturday!
+                          </p>
+                          <div className="action-buttons">
+                            <Button
+                              type="primary"
+                              style={{ marginRight: "10px" }}
+                            >
+                              Approve (doesn't work)
+                            </Button>
+                            <Button type="default" danger>
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </Collapse.Panel>
+                    </Collapse>
+                  </div>
+                </Card>
               </Col>
-              <Col span={8}>
-                <Form.Item label={`Start Time for Slot ${index + 1}`} required>
-                  <TimePicker
-                    format="HH:mm"
-                    onChange={(value) =>
-                      handleTimeChange(index, "start", value)
-                    }
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item label={`End Time for Slot ${index + 1}`} required>
-                  <TimePicker
-                    format="HH:mm"
-                    onChange={(value) => handleTimeChange(index, "end", value)}
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          ))}
-        </>
-      )}
+            </Col>
+          </Row>
+        </Content>
+      </Layout>
     </>
   );
 }

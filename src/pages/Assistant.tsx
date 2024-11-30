@@ -1,38 +1,45 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  collection,
-  getDocs,
-  addDoc,
-  query,
-  where,
-  onSnapshot,
-  Timestamp,
-  getFirestore,
-} from "firebase/firestore";
-import { auth } from "../config/Firebase"; // Adjust the import based on your Firebase configuration
-import { useAuthState } from "react-firebase-hooks/auth";
-import OfficeHour from "../models/OfficeHour";
-import ChangeRequest from "../models/ChangeRequest";
-import dayjs from "dayjs";
-import {
-  InputNumber,
+  Button,
+  Input,
+  Form,
+  message as antdMessage,
   TimePicker,
   Select,
-  Button,
-  Form,
   Row,
   Col,
-  Layout,
+  Space,
+  List,
+  Alert,
+  Radio,
   Typography,
-  Card,
-  Collapse,
+  Layout,
 } from "antd";
+import {
+  getFirestore,
+  doc,
+  collection,
+  getDocs,
+  deleteDoc,
+  updateDoc,
+  query,
+  where,
+  addDoc,
+} from "firebase/firestore";
+import OfficeHour from "../models/OfficeHour";
+import { User } from "firebase/auth";
+import dayjs from "dayjs";
 import { signOut } from "firebase/auth";
 import Header from "../components/Header";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../config/Firebase";
+import SubmitChangeRequest from "../components/Assistant/SubmitChangeRequest";
+import CalendarPage from "./CalendarPage";
+import SubmitOfficeHour from "../components/Assistant/SubmitOfficeHour";
 
 const db = getFirestore();
 const { Option } = Select;
-const { Title, Text } = Typography;
+// const { Title, Text } = Typography;
 const { Content } = Layout;
 
 const daysOfWeek = [
@@ -120,51 +127,110 @@ function Assistant() {
     setSlots(newSlots);
   };
 
+  const handleDeleteOfficeHour = async (createdAt: string) => {
+    const querySnapshot = await getDocs(
+      query(collection(db, "officeHours"), where("createdAt", "==", createdAt))
+    );
+    const docId = querySnapshot.docs[0].id;
+    await deleteDoc(doc(db, "officeHours", docId));
+    antdMessage.success("Office hour deleted successfully!");
+    await fetchOfficeHours();
+  };
+
+  const handleEditOfficeHour = async (
+    id: string,
+    updatedData: Partial<OfficeHour>
+  ) => {
+    await updateDoc(doc(db, "officeHours", id), updatedData);
+    await fetchOfficeHours();
+  };
+
   return (
     <>
-      <Layout>
-        <Content>
+      <Layout className="layout">
+        <Content className="content">
           <Header user={user} auth={auth} />
-          <Row gutter={16}>
-            <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-              <Card className="card">
-                <h3>Currently Registered Teaching Assistants:</h3>
-              </Card>
-              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                <Card className="card">
-                  <div className="message-section">
-                    <h3>Pending Change Requests:</h3>
-                    <Collapse>
-                      <Collapse.Panel header="Yuanhe Li" key="1">
-                        <div className="change-request-details">
-                          <p>
-                            <strong>From:</strong> Saturday 10 am - 11 am
-                          </p>
-                          <p>
-                            <strong>To:</strong> Sunday 10 am - 11 am
-                          </p>
-                          <p>
-                            <strong>Note:</strong> I was sick Saturday!
-                          </p>
-                          <div className="action-buttons">
-                            <Button
-                              type="primary"
-                              style={{ marginRight: "10px" }}
-                            >
-                              Approve (doesn't work)
-                            </Button>
-                            <Button type="default" danger>
-                              Reject
-                            </Button>
-                          </div>
-                        </div>
-                      </Collapse.Panel>
-                    </Collapse>
-                  </div>
-                </Card>
-              </Col>
-            </Col>
-          </Row>
+          <SubmitChangeRequest />
+          <CalendarPage />
+          <h2>Your Recent Office Hours</h2>
+          <div>Your office hour, up to 2 months from now.</div>
+          <List
+            bordered
+            dataSource={officeHours}
+            renderItem={(oh) => (
+              <List.Item
+                actions={[
+                  <Button
+                    type="link"
+                    onClick={() =>
+                      handleEditOfficeHour(oh.userId, {
+                        ...oh,
+                        location: "Updated Location",
+                      })
+                    }
+                  >
+                    Edit (not working)
+                  </Button>,
+                  <Button
+                    type="link"
+                    danger
+                    onClick={() => handleDeleteOfficeHour(oh.createdAt)}
+                  >
+                    Delete
+                  </Button>,
+                ]}
+              >
+                <Space>
+                  <span>{daysOfWeek[oh.dayOfWeek]}</span>
+                  <span>
+                    {oh.startTime} - {oh.endTime}
+                  </span>
+                  <span>{oh.location || "No location specified"}</span>
+                </Space>
+              </List.Item>
+            )}
+          />
+
+          <h2>Your Recurrence Office Hours (UI)</h2>
+          <div>Your recurrence hours</div>
+          <List
+            bordered
+            dataSource={officeHours}
+            renderItem={(oh) => (
+              <List.Item
+                actions={[
+                  <Button
+                    type="link"
+                    onClick={() =>
+                      handleEditOfficeHour(oh.userId, {
+                        ...oh,
+                        location: "Updated Location",
+                      })
+                    }
+                  >
+                    Edit (not working)
+                  </Button>,
+                  <Button
+                    type="link"
+                    danger
+                    onClick={() => handleDeleteOfficeHour(oh.createdAt)}
+                  >
+                    Delete
+                  </Button>,
+                ]}
+              >
+                <Space>
+                  <span>{daysOfWeek[oh.dayOfWeek]}</span>
+                  <span>
+                    {oh.startTime} - {oh.endTime}
+                  </span>
+                  <span>{oh.location || "No location specified"}</span>
+                </Space>
+              </List.Item>
+            )}
+          />
+
+          <SubmitOfficeHour user={user} />
         </Content>
       </Layout>
     </>

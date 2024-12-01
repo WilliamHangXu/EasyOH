@@ -56,7 +56,7 @@ function GoogleCalendar() {
       DISCOVERY_DOCS
     );
     setGapiInited(true);
-    maybeEnableButtons();
+    // maybeEnableButtons();
   };
 
   const onGisLoaded = () => {

@@ -1,20 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Button,
-  Input,
-  Form,
-  message as antdMessage,
-  TimePicker,
-  Select,
-  Row,
-  Col,
-  Space,
-  List,
-  Alert,
-  Radio,
-  Typography,
-  Layout,
-} from "antd";
+import { Button, message as antdMessage, Space, List, Layout } from "antd";
 import {
   getFirestore,
   doc,
@@ -24,12 +9,8 @@ import {
   updateDoc,
   query,
   where,
-  addDoc,
 } from "firebase/firestore";
 import OfficeHour from "../models/OfficeHour";
-import { User } from "firebase/auth";
-import dayjs from "dayjs";
-import { signOut } from "firebase/auth";
 import Header from "../components/Header";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../config/Firebase";
@@ -38,40 +19,22 @@ import CalendarPage from "./CalendarPage";
 import SubmitOfficeHour from "../components/Assistant/SubmitOfficeHour";
 
 const db = getFirestore();
-const { Option } = Select;
-// const { Title, Text } = Typography;
 const { Content } = Layout;
 
 const daysOfWeek = [
-  "",
+  "Sunday",
   "Monday",
   "Tuesday",
   "Wednesday",
   "Thursday",
   "Friday",
   "Saturday",
-  "Sunday",
 ];
 
 function Assistant() {
   const [user] = useAuthState(auth);
   const [officeHours, setOfficeHours] = useState<OfficeHour[]>([]);
-  const [slotCount, setSlotCount] = useState<number>(1);
-  const [slots, setSlots] = useState<
-    { day: string; start: string; end: string }[]
-  >([]);
   const [noOh, setNoOh] = useState<boolean>(false);
-  console.log(user);
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth); // Sign out the current user
-      window.location.href = "/"; // Redirect to the home or login page
-    } catch (error) {
-      console.error("Error logging out:", error);
-      alert("Failed to log out. Please try again.");
-    }
-  };
 
   useEffect(() => {
     // if (!user) return;
@@ -93,38 +56,6 @@ function Assistant() {
     if (officeHoursData.length === 0) {
       setNoOh(true);
     }
-  };
-
-  const handleTimeChange = (
-    index: number,
-    field: "start" | "end",
-    value: any
-  ) => {
-    const newSlots = [...slots];
-    newSlots[index] = {
-      ...newSlots[index],
-      [field]: value ? dayjs(value).format("HH:mm") : "",
-    };
-    setSlots(newSlots);
-  };
-
-  const handleSlotCountChange = (value: number | null) => {
-    if (value === null) return;
-    setSlotCount(value);
-    const updatedSlots = Array.from(
-      { length: value },
-      (_, index) => slots[index] || { start: "", end: "" }
-    );
-    setSlots(updatedSlots);
-  };
-
-  const handleDayChange = (index: number, value: string) => {
-    const newSlots = [...slots];
-    newSlots[index] = {
-      ...newSlots[index],
-      day: value,
-    };
-    setSlots(newSlots);
   };
 
   const handleDeleteOfficeHour = async (createdAt: string) => {

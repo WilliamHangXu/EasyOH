@@ -13,11 +13,8 @@ import {
 } from "antd";
 import {
   getFirestore,
-  doc,
   collection,
   getDocs,
-  deleteDoc,
-  updateDoc,
   query,
   where,
   addDoc,
@@ -27,14 +24,13 @@ import dayjs from "dayjs";
 import OfficeHour from "../../models/OfficeHour";
 
 const daysOfWeek = [
-  " ",
+  "Sunday",
   "Monday",
   "Tuesday",
   "Wednesday",
   "Thursday",
   "Friday",
   "Saturday",
-  "Sunday",
 ];
 const { Option } = Select;
 const db = getFirestore();
@@ -109,7 +105,6 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user }) => {
       <h2>Add an Office Hour</h2>
       <p>Not feeling well? Try Edit Recent Office Hours above!</p>
       <Form layout="vertical">
-        {/* Radio Group for Office Hour Type */}
         <Form.Item label="Type of Office Hour">
           <Radio.Group onChange={handleTypeChange} value={officeHourType}>
             <Radio value="temporary">Temporary</Radio>
@@ -117,7 +112,6 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user }) => {
           </Radio.Group>
         </Form.Item>
 
-        {/* Show warning when Recurrence is selected */}
         {showWarning && (
           <Alert
             message="Warning"
@@ -177,7 +171,7 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user }) => {
           <Col span={8}>
             <Form.Item label="Location (Optional)">
               <Input
-                placeholder="Location"
+                placeholder="FGH 201"
                 value={newOfficeHour.location}
                 onChange={(e) =>
                   setNewOfficeHour({

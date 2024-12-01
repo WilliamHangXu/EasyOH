@@ -4,6 +4,7 @@ import { EventApi, EventClickArg } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import rrulePlugin from "@fullcalendar/rrule";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { Modal, Button } from "antd";
 import { EventInput } from "@fullcalendar/core";
@@ -14,27 +15,82 @@ const Calendar: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<EventApi | null>(null); // Selected event from FullCalendar
   const [showModal, setShowModal] = useState(false); // Modal visibility
 
+  // successful data model!!
+  // const dummyEvents = [
+  //   {
+  //     id: "1asadjw",
+  //     title: "Office Hour by John Doe",
+  //     start: "2024-11-30T23:00:00Z",
+  //     end: "2024-12-01T02:00:00Z",
+  //     extendedProps: {
+  //       location: "FGH 201",
+  //       createdBy: "John Doe",
+  //       createdAt: "2024-12-01T09:00:00",
+  //     },
+  //   },
+  // ];
+
+  const workedRecurringEvent = {
+    id: "JaoT2cOfULfPrJuS1VWSBjGljIZZ",
+    title: "Office Hour by ins1@test.edu",
+    rrule:
+      "FREQ=WEEKLY;BYDAY=TU,TH;DTSTART=20241201T030000Z;UNTIL=20250101T030000Z", // Define recurrence
+    duration: "02:00", // Event duration: 2 hours
+    extendedProps: {
+      location: "FGH 201",
+      createdBy: "ins1@test.edu",
+      createdAt: "2024-12-01T20:34:08Z",
+    },
+  };
+
+  const dummyRecurringEvents = [
+    {
+      daysOfWeek: ["3"], // these recurrent events move separately
+      startTime: "11:00",
+      endTime: "13:30",
+      frequency: "weekly",
+    },
+  ];
+
   const mapOfficeHourToEventInput = (officeHour: OfficeHour): EventInput => {
+    console.log("office hour", officeHour);
     if (officeHour.isRecurring) {
       // Recurring Event
       return {
         id: officeHour.userId,
         title: `Office Hour by ${officeHour.createdBy}`,
-        rrule: officeHour.recurrenceRule, // Recurrence rule for FullCalendar's rrule plugin
         exdate: officeHour.exceptions, // Exception dates for recurring events
         extendedProps: {
           location: officeHour.location,
           createdBy: officeHour.createdBy,
           createdAt: officeHour.createdAt,
         },
+        startTime: officeHour.startTime,
+        endTime: officeHour.endTime,
+        daysOfWeek: [officeHour.dayOfWeek],
       };
     } else {
       // One-Time Event
+      if (!officeHour?.tmpDate) {
+        console.error("Wrong", officeHour);
+        throw new Error("Invalid input: tmpDate or startTime is missing");
+      }
+      const datePart = officeHour?.tmpDate.split("T")[0];
+
+      const adjustToUTCMinus6 = (date: string, time: string): string => {
+        const utcDate = new Date(`${date}T${time}:00Z`);
+        const localDate = new Date(utcDate.getTime() + 6 * 60 * 60 * 1000); // Subtract 6 hours
+        return localDate.toISOString().replace(".000Z", "Z"); // Format to ISO string
+      };
+
+      const start = adjustToUTCMinus6(datePart, officeHour.startTime);
+      const end = adjustToUTCMinus6(datePart, officeHour.endTime);
+
       return {
         id: officeHour.userId,
         title: `Office Hour by ${officeHour.createdBy}`,
-        start: officeHour.startTime, // Start date-time in ISO format
-        end: officeHour.endTime, // End date-time in ISO format
+        start: start,
+        end: end,
         extendedProps: {
           location: officeHour.location,
           createdBy: officeHour.createdBy,
@@ -52,7 +108,7 @@ const Calendar: React.FC = () => {
       const eventData: EventInput[] = snapshot.docs.map((doc) =>
         mapOfficeHourToEventInput(doc.data() as OfficeHour)
       );
-      console.log(eventData);
+      console.log("all data", eventData);
       setEvents(eventData);
     };
 
@@ -72,9 +128,14 @@ const Calendar: React.FC = () => {
   return (
     <div>
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+        plugins={[
+          dayGridPlugin,
+          timeGridPlugin,
+          interactionPlugin,
+          rrulePlugin,
+        ]}
         initialView="timeGridWeek"
-        events={events} // FullCalendar-compatible events
+        events={events}
         eventClick={handleEventClick}
       />
 
@@ -91,12 +152,6 @@ const Calendar: React.FC = () => {
         >
           <p>
             <strong>Title:</strong> {selectedEvent.title}
-          </p>
-          <p>
-            <strong>Start Time:</strong> {selectedEvent.start?.toISOString()}
-          </p>
-          <p>
-            <strong>End Time:</strong> {selectedEvent.end?.toISOString()}
           </p>
           <p>
             <strong>Location:</strong>{" "}

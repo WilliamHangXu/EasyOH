@@ -87,7 +87,6 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
     const fetchedOfficeHours = querySnapshot.docs.map((doc) => ({
       ...doc.data(),
     })) as OfficeHour[];
-    console.log(fetchedOfficeHours);
     setOfficeHours(fetchedOfficeHours);
   };
 
@@ -257,7 +256,6 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
           </Radio.Group>
         </Form.Item>
 
-        {/* Show warning when Recurrence is selected */}
         {showWarning && (
           <Alert
             message="Warning"

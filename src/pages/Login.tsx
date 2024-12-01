@@ -29,7 +29,7 @@ function Login() {
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
       if (!userDoc.exists()) {
-        setError("Role information not found for this user.");
+        setError("Role information not found. Are you an active TA?");
         return;
       }
 

@@ -1,29 +1,35 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { Button, Typography, Layout, Card } from "antd";
+import { Layout, Typography, Button } from "antd";
+import { LoginOutlined } from "@ant-design/icons";
 import "../css/Home.css";
 
-const { Title, Text } = Typography;
 const { Content } = Layout;
+const { Title, Text } = Typography;
 
-function Home() {
+const Home: React.FC = () => {
   return (
-    <Layout className="layout">
-      <Content className="content">
-        <Card className="card">
-          <Title level={2}>CS 2201 Office Hours</Title>
-          <Text type="secondary">
-            Welcome to this office hour that does not exist yet!
-          </Text>
-          <div className="button-container">
-            <Button type="primary" size="large">
-              <Link to="/login">Login</Link>
-            </Button>
-          </div>
-          <Text>Calendar here</Text>
-        </Card>
-      </Content>
-    </Layout>
+    <div className="layout">
+      <div className="content">
+        <div className="welcome-section">
+          <Title level={2}>Welcome to CS 2201 Office Hours!</Title>
+          <Text type="secondary">TA schedules for Fall 2025</Text>
+        </div>
+        <div className="calendar-container">
+          <iframe
+            src={import.meta.env.VITE_CALENDAR_EMBED_URL}
+            className="calendar-iframe"
+            title="CS 2201 Office Hours Calendar"
+          ></iframe>
+        </div>
+        <div style={{ marginTop: "2rem" }}>
+          <Button type="primary" icon={<LoginOutlined />} size="large">
+            <Link to="/login">Admin Login</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
 export default Home;

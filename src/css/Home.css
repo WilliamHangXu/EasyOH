@@ -1,27 +1,59 @@
+/* General Layout */
 .layout {
-    min-height: 100vh;
-    background-color: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-  }
-  
+  min-height: 100vh;
+}
+
+/* Header Styling */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #001529;
+}
+
+.logo {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Content Styling */
+.content {
+  padding: 50px;
+  background-color: #f0f2f5;
+}
+
+.welcome-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.calendar-container {
+  display: flex;
+  justify-content: center;
+}
+
+.calendar-iframe {
+  border: none;
+  width: 100%;
+  max-width: 1700px;
+  height: 600px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer Styling */
+.footer {
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .content {
-    max-width: 800px;
-    width: 100%;
+    padding: 20px;
   }
-  
-  .card {
-    text-align: center;
-    border-radius: 8px;
-    padding: 24px;
-    width: 100%;
-    margin: auto;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .calendar-iframe {
+    height: 500px;
   }
-  
-  .button-container {
-    margin: 24px 0;
-  }
-  
+}

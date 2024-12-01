@@ -4,21 +4,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 24px;
   }
   
   .content {
-    max-width: 800px;
+    max-width: 1000px;
     width: 100%;
   }
   
   .card {
     text-align: center;
     border-radius: 8px;
-    padding: 24px;
+    padding: 10px;
     width: 100%;
-    max-width: 400px;
-    margin: 16px auto;
+    max-width: 500px;
+    margin: 8px auto;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
   
@@ -38,5 +37,27 @@
   
   .secondary-card {
     text-align: left;
+  }
+  
+  .message-section {
+    padding: 10px;
+    border-radius: 6px;
+  }
+  
+  .change-request-details {
+    margin-top: 10px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+  }
+  
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
   }
   

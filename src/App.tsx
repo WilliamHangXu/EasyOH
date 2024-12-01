@@ -4,7 +4,6 @@ import Login from "./pages/Login";
 import Assistant from "./pages/Assistant";
 import Instructor from "./pages/Instructor";
 import Signup from "./pages/Signup";
-import Test from "./Test";
 
 // This code is for private routing, a feature that can be added later
 // import { Navigate, Outlet } from "react-router-dom";
@@ -30,7 +29,6 @@ function App() {
         <Route path="/instructor-dashboard" element={<Instructor />} />
         <Route path="/ta-dashboard" element={<Assistant />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/test" element={<Test />} />
       </Routes>
     </BrowserRouter>
   );

@@ -85,9 +85,9 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
     );
     const querySnapshot = await getDocs(officeHoursQuery);
     const fetchedOfficeHours = querySnapshot.docs.map((doc) => ({
-      userId: doc.id,
       ...doc.data(),
     })) as OfficeHour[];
+    console.log(fetchedOfficeHours);
     setOfficeHours(fetchedOfficeHours);
   };
 
@@ -186,22 +186,22 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
             ]}
           >
             <Space>
-              {officeHourType === "recurrence" ? (
+              {oh.isRecurring ? (
                 <span>
                   {oh.dayOfWeek !== undefined ? daysOfWeek[oh.dayOfWeek] : ""}
                 </span>
               ) : (
-                <span>{dayjs(oh.tmpDate).format("dddd")}</span>
+                <span>{dayjs(oh.tmpDate).format("YYYY-MM-DD")}</span>
               )}
               <span>
                 {oh.startTime} - {oh.endTime}
               </span>
-              <span>{oh.location || "No location specified"}</span>
+              <span>{oh.location || ""}</span>
             </Space>
           </List.Item>
         )}
       />
-      <h2>Your Recurrence Office Hours (UI)</h2>
+      <h2>Your Recurrence Office Hours</h2>
       <div>
         Your permenant office hours. If you change them, all temporary Edits for
         recent office hours will disappear!
@@ -209,44 +209,42 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
       <List
         bordered
         dataSource={officeHours}
-        renderItem={(oh) => (
-          <List.Item
-            actions={[
-              <Button
-                type="link"
-                onClick={() =>
-                  handleEditOfficeHour(oh.userId, {
-                    ...oh,
-                    location: "Updated Location",
-                  })
-                }
-              >
-                Edit (not working)
-              </Button>,
-              <Button
-                type="link"
-                danger
-                onClick={() => handleDeleteOfficeHour(oh.createdAt)}
-              >
-                Delete
-              </Button>,
-            ]}
-          >
-            <Space>
-              {officeHourType === "recurrence" ? (
+        renderItem={(oh) =>
+          oh.isRecurring && (
+            <List.Item
+              actions={[
+                <Button
+                  type="link"
+                  onClick={() =>
+                    handleEditOfficeHour(oh.userId, {
+                      ...oh,
+                      location: "Updated Location",
+                    })
+                  }
+                >
+                  Edit (not working)
+                </Button>,
+                <Button
+                  type="link"
+                  danger
+                  onClick={() => handleDeleteOfficeHour(oh.createdAt)}
+                >
+                  Delete
+                </Button>,
+              ]}
+            >
+              <Space>
                 <span>
                   {oh.dayOfWeek !== undefined ? daysOfWeek[oh.dayOfWeek] : ""}
                 </span>
-              ) : (
-                <span>{dayjs(oh.tmpDate).format("dddd")}</span>
-              )}
-              <span>
-                {oh.startTime} - {oh.endTime}
-              </span>
-              <span>{oh.location || "No location specified"}</span>
-            </Space>
-          </List.Item>
-        )}
+                <span>
+                  {oh.startTime} - {oh.endTime}
+                </span>
+                <span>{oh.location || ""}</span>
+              </Space>
+            </List.Item>
+          )
+        }
       ></List>
 
       <h2>Add an Office Hour</h2>
@@ -273,7 +271,11 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
         <Row gutter={16}>
           <Col span={8}>
             {officeHourType === "recurrence" ? (
-              <Form.Item label="Day of Week" required>
+              <Form.Item
+                label="Day of Week"
+                name="dayOfWeek"
+                rules={[{ required: true, message: "Please select a Day!" }]}
+              >
                 <Select
                   placeholder="Select Day"
                   onChange={(value) =>
@@ -289,7 +291,11 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
                 </Select>
               </Form.Item>
             ) : (
-              <Form.Item label="Date" required>
+              <Form.Item
+                label="Date"
+                name="tmpDate"
+                rules={[{ required: true, message: "Please select a date!" }]}
+              >
                 <DatePicker
                   placeholder="Select Date to Add Office Hour"
                   onChange={(value) =>
@@ -304,7 +310,7 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
             )}
           </Col>
           <Col span={8}>
-            <Form.Item label="Start Time" required>
+            <Form.Item label="Start Time" name="startTime" required>
               <TimePicker
                 format="HH:mm"
                 onChange={(value) =>
@@ -319,7 +325,7 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="End Time" required>
+            <Form.Item label="End Time" name="endTime" required>
               <TimePicker
                 format="HH:mm"
                 onChange={(value) =>

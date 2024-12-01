@@ -52,6 +52,7 @@ const Calendar: React.FC = () => {
       const eventData: EventInput[] = snapshot.docs.map((doc) =>
         mapOfficeHourToEventInput(doc.data() as OfficeHour)
       );
+      console.log(eventData);
       setEvents(eventData);
     };
 

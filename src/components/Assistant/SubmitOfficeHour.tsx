@@ -10,6 +10,7 @@ import {
   Col,
   Alert,
   Radio,
+  DatePicker,
 } from "antd";
 import {
   getFirestore,
@@ -49,7 +50,9 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user }) => {
     dayOfWeek: 0,
     startTime: "",
     endTime: "",
-    location: "",
+    location: "FGH 201",
+    isRecurring: false,
+    tmpDate: "",
   });
 
   const handleTypeChange = (e: any) => {
@@ -94,7 +97,9 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user }) => {
         dayOfWeek: 0,
         startTime: "",
         endTime: "",
-        location: "",
+        location: "FGH 201",
+        isRecurring: false,
+        tmpDate: "",
       });
     }, 10);
     antdMessage.success("Office hour added successfully!");
@@ -124,21 +129,44 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user }) => {
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Day of Week" required>
-              <Select
-                placeholder="Select Day"
-                onChange={(value) =>
-                  setNewOfficeHour({ ...newOfficeHour, dayOfWeek: value })
-                }
-                style={{ width: "100%" }}
+            {officeHourType === "recurrence" ? (
+              <Form.Item
+                label="Day of Week"
+                name="dayOfWeek"
+                rules={[{ required: true, message: "Please select a Day!" }]}
               >
-                {daysOfWeek.map((day, index) => (
-                  <Option key={index} value={index}>
-                    {day}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
+                <Select
+                  placeholder="Select Day"
+                  onChange={(value) =>
+                    setNewOfficeHour({ ...newOfficeHour, dayOfWeek: value })
+                  }
+                  style={{ width: "100%" }}
+                >
+                  {daysOfWeek.map((day, index) => (
+                    <Option key={index} value={index}>
+                      {day}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            ) : (
+              <Form.Item
+                label="Date"
+                name="tmpDate"
+                rules={[{ required: true, message: "Please select a date!" }]}
+              >
+                <DatePicker
+                  placeholder="Select Date to Add Office Hour"
+                  onChange={(value) =>
+                    setNewOfficeHour({
+                      ...newOfficeHour,
+                      tmpDate: value.toISOString(),
+                    })
+                  }
+                  style={{ width: "100%" }}
+                ></DatePicker>
+              </Form.Item>
+            )}
           </Col>
           <Col span={8}>
             <Form.Item label="Start Time" required>

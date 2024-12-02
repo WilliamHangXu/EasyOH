@@ -60,4 +60,9 @@
     justify-content: space-between;
     padding: 10px;
   }
-  
+  .scrollable-list{
+    max-height: 300px;
+    overflow-y: auto; 
+    border: 1px solid #ccc;
+    padding: 10px;
+  }

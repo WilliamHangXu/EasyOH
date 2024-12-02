@@ -53,7 +53,6 @@ const Calendar: React.FC = () => {
   ];
 
   const mapOfficeHourToEventInput = (officeHour: OfficeHour): EventInput => {
-    console.log("office hour", officeHour);
     if (officeHour.isRecurring) {
       // Recurring Event
       return {
@@ -72,7 +71,6 @@ const Calendar: React.FC = () => {
     } else {
       // One-Time Event
       if (!officeHour?.tmpDate) {
-        console.error("Wrong", officeHour);
         throw new Error("Invalid input: tmpDate or startTime is missing");
       }
       const datePart = officeHour?.tmpDate.split("T")[0];
@@ -108,7 +106,6 @@ const Calendar: React.FC = () => {
       const eventData: EventInput[] = snapshot.docs.map((doc) =>
         mapOfficeHourToEventInput(doc.data() as OfficeHour)
       );
-      console.log("all data", eventData);
       setEvents(eventData);
     };
 

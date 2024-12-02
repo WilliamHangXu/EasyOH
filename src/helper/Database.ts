@@ -56,29 +56,55 @@ export const deleteTAByEmail = async (db: Firestore, email: string): Promise<voi
 };
 
 /**
- * 
+ * Fetching OH by user ID
+ * @param db - The Firestore database instance.
+ * @param userId - The email of the TA to delete.
+ * @returns All OfficeHours
  */
-export const fetchAllOHByID = async (): Promise<void> => {
+export const fetchAllOHByID = async (db: Firestore, userId: string): Promise<OfficeHour[]> => {
+  const officeHoursQuery = query(
+    collection(db, "officeHours"),
+    where("userId", "==", userId)
+  );
+  const querySnapshot = await getDocs(officeHoursQuery);
 
+  const fetchedOfficeHours = querySnapshot.docs.map((doc) => ({
+    ...doc.data(),
+  })) as OfficeHour[];
+
+
+  return fetchedOfficeHours;
 };
 
-export const expandRecurringEvents = (officeHours: OfficeHour[]): string[]  => {
+/**
+ * Expands recurring events into individual events.
+ * @param officeHours - The list of officeHour to expand.
+ * @returns The expanded list of officeHour.
+ */
+export const expandRecurringEvents = (officeHours: OfficeHour[]): OfficeHour[]  => {
   const today = dayjs();
-  const result: string[] = [];
+  const result: OfficeHour[] = [];
 
   for(const officeHour of officeHours) {
-    if (officeHour.dayOfWeek !== undefined && officeHour.recurrenceRule) {
+    // means it is a recurring event
+    if (officeHour.dayOfWeek !== -1) {
       let currentDate = today.startOf("day");
       const maxDate = today.add(2, "months");
 
       while (currentDate.isBefore(maxDate)) {
         if (currentDate.day() === officeHour.dayOfWeek) {
-          result.push(currentDate.format("YYYY-MM-DD"));
+          result.push({
+            ...officeHour,
+            tmpDate: currentDate.toISOString(),
+          });
         }
         currentDate = currentDate.add(1, "day");
       }
+    } else {
+      result.push({ ...officeHour });
     }
   }
-  console.log("result", result);
+  // sort result by tmpDate
+  result.sort((a, b) => dayjs(a.tmpDate).diff(dayjs(b.tmpDate)));
   return result;
 }

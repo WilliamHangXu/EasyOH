@@ -1,7 +1,8 @@
 import { getDocs, query, where, collection, Firestore, doc, deleteDoc } from "firebase/firestore";
 import { message as antdMessage } from "antd";
 import User from "../models/User";
-import { adminAuth } from "../config/admin";
+import OfficeHour from "../models/OfficeHour";
+import dayjs from "dayjs";
 
 /**
  * Fetches a list of Teaching Assistants (TAs) from the Firestore database.
@@ -60,3 +61,24 @@ export const deleteTAByEmail = async (db: Firestore, email: string): Promise<voi
 export const fetchAllOHByID = async (): Promise<void> => {
 
 };
+
+export const expandRecurringEvents = (officeHours: OfficeHour[]): string[]  => {
+  const today = dayjs();
+  const result: string[] = [];
+
+  for(const officeHour of officeHours) {
+    if (officeHour.dayOfWeek !== undefined && officeHour.recurrenceRule) {
+      let currentDate = today.startOf("day");
+      const maxDate = today.add(2, "months");
+
+      while (currentDate.isBefore(maxDate)) {
+        if (currentDate.day() === officeHour.dayOfWeek) {
+          result.push(currentDate.format("YYYY-MM-DD"));
+        }
+        currentDate = currentDate.add(1, "day");
+      }
+    }
+  }
+  console.log("result", result);
+  return result;
+}

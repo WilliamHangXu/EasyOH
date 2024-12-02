@@ -28,6 +28,7 @@ import {
 import OfficeHour from "../../models/OfficeHour";
 import { User } from "firebase/auth";
 import dayjs from "dayjs";
+import { expandRecurringEvents } from "../../helper/Database";
 
 const db = getFirestore();
 const daysOfWeek = [
@@ -87,6 +88,7 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
     const fetchedOfficeHours = querySnapshot.docs.map((doc) => ({
       ...doc.data(),
     })) as OfficeHour[];
+    const dates = expandRecurringEvents(fetchedOfficeHours);
     setOfficeHours(fetchedOfficeHours);
   };
 
@@ -135,8 +137,8 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
       createdBy: user?.email || "",
       createdAt: new Date().toISOString(),
       ...newOfficeHour,
-      recurrenceRule, // Add the rule only if it's a recurring event
-      exceptions: [], // Initialize with no exceptions
+      recurrenceRule,
+      exceptions: [],
     };
 
     await addDoc(collection(db, "officeHours"), newEntry);
@@ -156,49 +158,51 @@ const ManageOfficeHour: React.FC<ManageOHProps> = ({ user }) => {
   };
   return (
     <>
-      <h2>Your Recent Office Hours</h2>
+      <h2>Your Upcoming Office Hours</h2>
       <div>Your office hour, up to 2 months from now.</div>
       <List
         bordered
         dataSource={officeHours}
-        renderItem={(oh) => (
-          <List.Item
-            actions={[
-              <Button
-                type="link"
-                onClick={() =>
-                  handleEditOfficeHour(oh.userId, {
-                    ...oh,
-                    location: "Updated Location",
-                  })
-                }
-              >
-                Edit (not working)
-              </Button>,
-              <Button
-                type="link"
-                danger
-                onClick={() => handleDeleteOfficeHour(oh.createdAt)}
-              >
-                Delete
-              </Button>,
-            ]}
-          >
-            <Space>
-              {oh.isRecurring ? (
+        renderItem={(oh) =>
+          (oh.tmpDate === "" || dayjs() < dayjs(oh.tmpDate)) && (
+            <List.Item
+              actions={[
+                <Button
+                  type="link"
+                  onClick={() =>
+                    handleEditOfficeHour(oh.userId, {
+                      ...oh,
+                      location: "Updated Location",
+                    })
+                  }
+                >
+                  Edit (not working)
+                </Button>,
+                <Button
+                  type="link"
+                  danger
+                  onClick={() => handleDeleteOfficeHour(oh.createdAt)}
+                >
+                  Delete
+                </Button>,
+              ]}
+            >
+              <Space>
+                {oh.isRecurring ? (
+                  <span>
+                    {oh.dayOfWeek !== undefined ? daysOfWeek[oh.dayOfWeek] : ""}
+                  </span>
+                ) : (
+                  <span>{dayjs(oh.tmpDate).format("YYYY-MM-DD")}</span>
+                )}
                 <span>
-                  {oh.dayOfWeek !== undefined ? daysOfWeek[oh.dayOfWeek] : ""}
+                  {oh.startTime} - {oh.endTime}
                 </span>
-              ) : (
-                <span>{dayjs(oh.tmpDate).format("YYYY-MM-DD")}</span>
-              )}
-              <span>
-                {oh.startTime} - {oh.endTime}
-              </span>
-              <span>{oh.location || ""}</span>
-            </Space>
-          </List.Item>
-        )}
+                <span>{oh.location || ""}</span>
+              </Space>
+            </List.Item>
+          )
+        }
       />
       <h2>Your Recurrence Office Hours</h2>
       <div>

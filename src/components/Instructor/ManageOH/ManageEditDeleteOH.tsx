@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, message as antdMessage, Space, List } from "antd";
 import {
   getFirestore,
@@ -36,6 +36,10 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
   flattenedOH,
   setFlattenedOH,
 }) => {
+  useEffect(() => {
+    setFlattenedOH(expandRecurringEvents(officeHours));
+  }, [officeHours]);
+
   const handleDeleteOfficeHour = async (createdAt: string) => {
     const querySnapshot = await getDocs(
       query(collection(db, "officeHours"), where("createdAt", "==", createdAt))
@@ -92,7 +96,8 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
               <Space>
                 <span>{dayjs(oh.tmpDate).format("YYYY-MM-DD")}</span>
                 <span>
-                  {oh.startTime} - {oh.endTime}
+                  {oh.startTime} - {oh.endTime} -{" "}
+                  {oh.isRecurring && "Recurring"}
                 </span>
                 <span>{oh.location || ""}</span>
               </Space>

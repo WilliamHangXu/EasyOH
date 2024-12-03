@@ -1,37 +1,10 @@
 import { useState, useEffect } from "react";
-import {
-  Button,
-  Input,
-  Form,
-  message as antdMessage,
-  TimePicker,
-  Select,
-  Row,
-  Col,
-  Space,
-  List,
-  Alert,
-  Radio,
-  DatePicker,
-} from "antd";
-import {
-  getFirestore,
-  doc,
-  collection,
-  getDocs,
-  deleteDoc,
-  updateDoc,
-  query,
-  where,
-  addDoc,
-} from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import OfficeHour from "../../models/OfficeHour";
 import { User } from "firebase/auth";
-import dayjs from "dayjs";
 import { expandRecurringEvents, fetchAllOHByID } from "../../helper/Database";
 import "../../css/Instructor.css";
 import ManageAddOH from "./ManageOH/ManageAddOH";
-import { daysOfWeek } from "../../constants/daysOfWeek";
 import ManageEditDeleteOH from "./ManageOH/ManageEditDeleteOH";
 
 const db = getFirestore();

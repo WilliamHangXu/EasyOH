@@ -45,10 +45,15 @@ const Calendar: React.FC = () => {
 
   const dummyRecurringEvents = [
     {
-      daysOfWeek: ["3"], // these recurrent events move separately
       startTime: "11:00",
       endTime: "13:30",
       frequency: "weekly",
+      rrule: {
+        freq: "weekly",
+        byweekday: ["tu", "mo"],
+        dtstart: "2024-12-01T03:00:00Z",
+        until: "2025-01-01T03:00:00Z",
+      },
     },
   ];
 
@@ -132,7 +137,7 @@ const Calendar: React.FC = () => {
           rrulePlugin,
         ]}
         initialView="timeGridWeek"
-        events={events}
+        events={dummyRecurringEvents}
         eventClick={handleEventClick}
       />
 

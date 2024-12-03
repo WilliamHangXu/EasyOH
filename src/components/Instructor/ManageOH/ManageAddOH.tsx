@@ -22,19 +22,10 @@ import {
 } from "../../../helper/Database";
 import { User } from "firebase/auth";
 import OfficeHour from "../../../models/OfficeHour";
+import { daysOfWeek } from "../../../constants/daysOfWeek";
 
 const { Option } = Select;
 const db = getFirestore();
-
-const daysOfWeek = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
 
 interface ManageAddOHProps {
   user: User | null | undefined;
@@ -109,6 +100,7 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({
     await addDoc(collection(db, "officeHours"), newEntry);
     setOfficeHours((prev) => [...prev, newEntry]);
     setFlattenedOH((prev) => [...prev, ...expandRecurringEvents([newEntry])]);
+    console.log(officeHourType);
 
     form.resetFields();
 

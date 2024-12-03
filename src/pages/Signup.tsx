@@ -35,8 +35,8 @@ function Signup() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [firstName, setFirstName] = useState<string>("");
+  const [, setLastName] = useState<string>("");
+  const [, setFirstName] = useState<string>("");
   const navigate = useNavigate();
 
   const createUser = async (values: {

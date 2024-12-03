@@ -7,19 +7,13 @@ import {
   Select,
   Row,
   Col,
-  Space,
-  List,
   Alert,
   Radio,
   DatePicker,
 } from "antd";
-import { useState, useEffect } from "react";
-import { getFirestore, doc, collection, addDoc } from "firebase/firestore";
+import { useState } from "react";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 import dayjs from "dayjs";
-import {
-  fetchAllOHByID,
-  expandRecurringEvents,
-} from "../../../helper/Database";
 import { User } from "firebase/auth";
 import OfficeHour from "../../../models/OfficeHour";
 import { daysOfWeek } from "../../../constants/daysOfWeek";
@@ -33,11 +27,7 @@ interface ManageAddOHProps {
   setFlattenedOH: React.Dispatch<React.SetStateAction<OfficeHour[]>>;
 }
 
-const ManageAddOH: React.FC<ManageAddOHProps> = ({
-  user,
-  setOfficeHours,
-  setFlattenedOH,
-}) => {
+const ManageAddOH: React.FC<ManageAddOHProps> = ({ user, setOfficeHours }) => {
   const [form] = Form.useForm(); // Create a Form instance
   const [officeHourType, setOfficeHourType] = useState<
     "temporary" | "recurrence"

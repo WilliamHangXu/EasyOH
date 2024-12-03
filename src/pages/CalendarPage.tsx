@@ -30,39 +30,39 @@ const Calendar: React.FC = () => {
   //   },
   // ];
 
-  const workedRecurringEvent = {
-    id: "JaoT2cOfULfPrJuS1VWSBjGljIZZ",
-    title: "Office Hour by ins1@test.edu",
-    rrule:
-      "FREQ=WEEKLY;BYDAY=TU,TH;DTSTART=20241201T030000Z;UNTIL=20250101T030000Z", // Define recurrence
-    duration: "02:00", // Event duration: 2 hours
-    extendedProps: {
-      location: "FGH 201",
-      createdBy: "ins1@test.edu",
-      createdAt: "2024-12-01T20:34:08Z",
-    },
-  };
+  // const workedRecurringEvent = {
+  //   id: "JaoT2cOfULfPrJuS1VWSBjGljIZZ",
+  //   title: "Office Hour by ins1@test.edu",
+  //   rrule:
+  //     "FREQ=WEEKLY;BYDAY=TU,TH;DTSTART=20241201T030000Z;UNTIL=20250101T030000Z", // Define recurrence
+  //   duration: "02:00", // Event duration: 2 hours
+  //   extendedProps: {
+  //     location: "FGH 201",
+  //     createdBy: "ins1@test.edu",
+  //     createdAt: "2024-12-01T20:34:08Z",
+  //   },
+  // };
 
-  const dummyRecurringEvents = [
-    {
-      id: "JaoT2cOf",
-      title: "Office Hour by",
-      exdate: ["2024-12-02"],
-      rrule: {
-        freq: "weekly",
-        byweekday: ["tu", "mo"],
-        dtstart: "2024-12-01T03:00:00Z",
-        until: "2025-01-01T03:00:00Z",
-        count: 5,
-        tzid: "GMT",
-      },
-      extendedProps: {
-        location: "hi",
-        createdBy: "mom",
-        createdAt: "asdf",
-      },
-    },
-  ];
+  // const dummyRecurringEvents = [
+  //   {
+  //     id: "JaoT2cOf",
+  //     title: "Office Hour by",
+  //     exdate: ["2024-12-02"],
+  //     rrule: {
+  //       freq: "weekly",
+  //       byweekday: ["tu", "mo"],
+  //       dtstart: "2024-12-01T03:00:00Z",
+  //       until: "2025-01-01T03:00:00Z",
+  //       count: 5,
+  //       tzid: "GMT",
+  //     },
+  //     extendedProps: {
+  //       location: "hi",
+  //       createdBy: "mom",
+  //       createdAt: "asdf",
+  //     },
+  //   },
+  // ];
 
   const mapOfficeHourToEventInput = (officeHour: OfficeHour): EventInput => {
     if (officeHour.isRecurring) {

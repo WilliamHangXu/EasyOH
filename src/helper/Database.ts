@@ -86,8 +86,7 @@ export const expandRecurringEvents = (officeHours: OfficeHour[]): OfficeHour[]  
   const result: OfficeHour[] = [];
 
   for(const officeHour of officeHours) {
-    // means it is a recurring event
-    if (officeHour.dayOfWeek !== -1) {
+    if (officeHour.isRecurring) {
       let currentDate = today.startOf("day");
       const maxDate = today.add(2, "months");
 

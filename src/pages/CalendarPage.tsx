@@ -5,7 +5,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import rrulePlugin from "@fullcalendar/rrule";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs, count } from "firebase/firestore";
 import { Modal, Button } from "antd";
 import { EventInput } from "@fullcalendar/core";
 import OfficeHour from "../models/OfficeHour";
@@ -45,14 +45,21 @@ const Calendar: React.FC = () => {
 
   const dummyRecurringEvents = [
     {
-      startTime: "11:00",
-      endTime: "13:30",
-      frequency: "weekly",
+      id: "JaoT2cOf",
+      title: "Office Hour by",
+      exdate: ["2024-12-02"],
       rrule: {
         freq: "weekly",
         byweekday: ["tu", "mo"],
         dtstart: "2024-12-01T03:00:00Z",
         until: "2025-01-01T03:00:00Z",
+        count: 5,
+        tzid: "GMT",
+      },
+      extendedProps: {
+        location: "hi",
+        createdBy: "mom",
+        createdAt: "asdf",
       },
     },
   ];
@@ -63,7 +70,15 @@ const Calendar: React.FC = () => {
       return {
         id: officeHour.userId,
         title: `Office Hour by ${officeHour.createdBy}`,
-        exdate: officeHour.exceptions, // Exception dates for recurring events
+        tzid: "GMT",
+        // rrule: {
+        //   freq: "weekly",
+        //   // byweekday: [officeHour?.dayOfWeek],
+        //   dtstart: "2024-12-01T03:00:00Z",
+        //   until: "2025-01-01T03:00:00Z",
+        //   count: 5,
+        //   // exdate: [officeHour.exceptions],
+        // },
         extendedProps: {
           location: officeHour.location,
           createdBy: officeHour.createdBy,

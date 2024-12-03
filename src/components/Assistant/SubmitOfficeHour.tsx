@@ -47,7 +47,7 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user }) => {
   >("temporary");
   const [showWarning, setShowWarning] = useState(false);
   const [newOfficeHour, setNewOfficeHour] = useState({
-    dayOfWeek: 0,
+    dayOfWeek: -1,
     startTime: "",
     endTime: "",
     location: "FGH 201",
@@ -94,7 +94,7 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user }) => {
     // clear the fields
     setTimeout(() => {
       setNewOfficeHour({
-        dayOfWeek: 0,
+        dayOfWeek: -1,
         startTime: "",
         endTime: "",
         location: "FGH 201",

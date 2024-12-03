@@ -99,13 +99,12 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({
 
     await addDoc(collection(db, "officeHours"), newEntry);
     setOfficeHours((prev) => [...prev, newEntry]);
-    setFlattenedOH((prev) => [...prev, ...expandRecurringEvents([newEntry])]);
     console.log(officeHourType);
 
     form.resetFields();
 
     setNewOfficeHour({
-      dayOfWeek: 0,
+      dayOfWeek: -1,
       startTime: "",
       endTime: "",
       location: "FGH 201",

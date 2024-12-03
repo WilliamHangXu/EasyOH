@@ -25,7 +25,6 @@ import OfficeHour from "../models/OfficeHour";
 import Header from "../components/Header";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../config/Firebase";
-import SubmitChangeRequest from "../components/Assistant/SubmitChangeRequest";
 import CalendarPage from "./CalendarPage";
 import SubmitOfficeHour from "../components/Assistant/SubmitOfficeHour";
 import { daysOfWeek } from "../constants/daysOfWeek";
@@ -160,7 +159,9 @@ function Assistant() {
                 ]}
               >
                 <Space>
-                  <span>{daysOfWeek[oh.dayOfWeek]}</span>
+                  <span>
+                    {oh.dayOfWeek !== undefined && daysOfWeek[oh.dayOfWeek]}
+                  </span>
                   <span>
                     {oh.startTime} - {oh.endTime}
                   </span>
@@ -199,7 +200,9 @@ function Assistant() {
                 ]}
               >
                 <Space>
-                  <span>{daysOfWeek[oh.dayOfWeek]}</span>
+                  <span>
+                    {oh.dayOfWeek !== undefined && daysOfWeek[oh.dayOfWeek]}
+                  </span>
                   <span>
                     {oh.startTime} - {oh.endTime}
                   </span>

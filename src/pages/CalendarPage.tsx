@@ -5,7 +5,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import rrulePlugin from "@fullcalendar/rrule";
-import { getFirestore, collection, getDocs, count } from "firebase/firestore";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { Modal, Button } from "antd";
 import { EventInput } from "@fullcalendar/core";
 import OfficeHour from "../models/OfficeHour";

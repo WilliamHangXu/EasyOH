@@ -1,8 +1,10 @@
-import { getDocs, query, where, collection, Firestore, doc, deleteDoc } from "firebase/firestore";
+import { getDocs, query, where, collection, Firestore, doc, deleteDoc, addDoc,getDoc} from "firebase/firestore";
 import { message as antdMessage } from "antd";
+import { User as FirebaseUser } from "firebase/auth";
 import User from "../models/User";
 import OfficeHour from "../models/OfficeHour";
 import dayjs from "dayjs";
+import ChangeRequest from "../models/ChangeRequest";
 
 /**
  * Fetches a list of Teaching Assistants (TAs) from the Firestore database.
@@ -107,3 +109,85 @@ export const expandRecurringEvents = (officeHours: OfficeHour[]): OfficeHour[]  
   result.sort((a, b) => dayjs(a.tmpDate).diff(dayjs(b.tmpDate)));
   return result;
 }
+
+export const formToCreateRequest = async (form: any, user: FirebaseUser | null | undefined, db: Firestore): Promise<ChangeRequest>  => {
+  if (!user?.uid || !user?.email) {
+    throw new Error("User ID and email is required to create a ChangeRequest");
+  }
+    // Extract form values
+    const {
+      tmpDate,
+      startTime,
+      endTime,
+      location,
+      note,
+      ohType,
+    } = form;
+  
+    // Create the OfficeHour object
+    const primaryOH: OfficeHour = {
+      userId: user.uid,
+      createdBy: user.email,
+      createdAt: dayjs().toISOString(),
+      dayOfWeek: ohType === "recurrence" ? form.dayOfWeek : -1,
+      startTime: dayjs(startTime).format("HH:mm"),
+      endTime: dayjs(endTime).format("HH:mm"),
+      location: location || "FGH 201",
+      isRecurring: ohType === "recurrence",
+      recurrenceRule: "",
+      exceptions: [],
+      tmpDate: dayjs(tmpDate).toISOString(),
+    };
+
+    const userDoc = (await getDoc(doc(db, "users", user.uid))).data();
+    console.log("userDoc", userDoc);
+    // const querySnapshot = await getDocs(officeHoursQuery);
+  
+    // Create the ChangeRequest object
+    const changeRequest: ChangeRequest = {
+      userId: user.uid,
+      userFirstName: userDoc?.firstName,
+      userLastName: userDoc?.lastName,
+      operation: "create",
+      primaryOH,
+      taNote: note,
+      status: "pending",
+      submittedAt: dayjs().toISOString(),
+    };
+  
+    // Insert the ChangeRequest object into the Firebase database
+    const collectionRef = collection(db, "changeRequests");
+    await addDoc(collectionRef, changeRequest);
+    return changeRequest;
+}
+
+/**
+ * Fetches all pending ChangeRequests from the Firestore database.
+ * @returns A promise that resolves to an array of pending ChangeRequest objects.
+ */
+export const fetchPendingChangeRequests = async (db: Firestore): Promise<ChangeRequest[]> => {
+  try {
+    // Reference to the 'changeRequests' collection
+    const changeRequestsCollection = collection(db, "changeRequests");
+
+    // Create a query to filter for 'pending' change requests
+    const pendingQuery = query(
+      changeRequestsCollection,
+      where("status", "==", "pending")
+    );
+
+    // Retrieve the filtered documents
+    const snapshot = await getDocs(pendingQuery);
+
+    // Map through the documents to get their data
+    const pendingChangeRequests = snapshot.docs.map((doc) => ({
+      docId: doc.id,
+      ...doc.data(),
+    })) as ChangeRequest[];
+
+    return pendingChangeRequests;
+  } catch (error) {
+    console.error("Error fetching pending change requests:", error);
+    throw error;
+  }
+};

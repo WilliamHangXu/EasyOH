@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import {
-  Button,
   Input,
   Form,
   TimePicker,
-  message as antdMessage,
   Select,
   Row,
   Col,
@@ -12,34 +10,20 @@ import {
   Radio,
   DatePicker,
 } from "antd";
-import { getFirestore } from "firebase/firestore";
-import { User } from "firebase/auth";
-import dayjs from "dayjs";
-import OfficeHour from "../../models/OfficeHour";
 import { daysOfWeek } from "../../constants/daysOfWeek";
 
 const { Option } = Select;
 const { TextArea } = Input;
-const db = getFirestore();
 
 interface SubmitOHProps {
-  user: User | null | undefined;
   form: any;
 }
 
-const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user, form }) => {
+const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ form }) => {
   const [officeHourType, setOfficeHourType] = useState<
     "temporary" | "recurrence"
   >("temporary");
   const [showWarning, setShowWarning] = useState(false);
-  const [newChangeRequest, setNewChangeRequest] = useState({
-    dayOfWeek: -1,
-    startTime: "",
-    endTime: "",
-    location: "FGH 201",
-    isRecurring: false,
-    tmpDate: "",
-  });
 
   const handleTypeChange = (e: any) => {
     const selectedType = e.target.value;
@@ -54,7 +38,11 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ user, form }) => {
   return (
     <>
       <Form layout="vertical" form={form}>
-        <Form.Item label="Select a Type of Office Hour">
+        <Form.Item
+          name="ohType"
+          label="Select a Type of Office Hour"
+          rules={[{ required: true, message: "Please select the Type!" }]}
+        >
           <Radio.Group onChange={handleTypeChange} value={officeHourType}>
             <Radio value="temporary">Temporary</Radio>
             <Radio value="recurrence">Recurrence</Radio>

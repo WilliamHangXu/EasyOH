@@ -8,6 +8,8 @@ import {
   Typography,
   Modal,
   Form,
+  Card,
+  Collapse,
 } from "antd";
 import {
   getFirestore,
@@ -27,6 +29,9 @@ import SubmitChangeRequest from "../components/Assistant/SubmitChangeRequest";
 import CalendarPage from "./CalendarPage";
 import SubmitOfficeHour from "../components/Assistant/SubmitOfficeHour";
 import { daysOfWeek } from "../constants/daysOfWeek";
+import { formToCreateRequest } from "../helper/Database";
+import ChangeRequest from "../models/ChangeRequest";
+import RequestCard from "../components/Assistant/RequestCard";
 
 const db = getFirestore();
 const { Content } = Layout;
@@ -36,22 +41,35 @@ function Assistant() {
   const [user] = useAuthState(auth);
   const [officeHours, setOfficeHours] = useState<OfficeHour[]>([]);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [noOh, setNoOh] = useState<boolean>(false);
+  const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>([]);
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (!user) return;
-
     fetchOfficeHours();
-  }, []);
+    fetchChangeRequests();
+  }, [user]);
 
-  const handleFormSubmission = async () => {
+  const fetchChangeRequests = async () => {
+    const changeRequestQuery = query(
+      collection(db, "changeRequests"),
+      where("userId", "==", user?.uid)
+    );
+    const querySnapshot = await getDocs(changeRequestQuery);
+    const changeRequestsData = querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+    })) as ChangeRequest[];
+    console.log("Change Requests:", changeRequestsData);
+    setChangeRequests(changeRequestsData);
+  };
+
+  const handleCreateForm = async () => {
     try {
       const values = await form.validateFields(); // Validate and get form values
       console.log("Form Data:", values);
       setIsModalVisible(false);
       form.resetFields();
-      // Perform further actions, e.g., save to database
+      const cr = await formToCreateRequest(values, user, db);
+      setChangeRequests([...changeRequests, cr]);
     } catch (error) {
       console.error("Validation failed:", error);
     }
@@ -68,9 +86,6 @@ function Assistant() {
       ...doc.data(),
     })) as OfficeHour[];
     setOfficeHours(officeHoursData);
-    if (officeHoursData.length === 0) {
-      setNoOh(true);
-    }
   };
 
   const handleDeleteOfficeHour = async (createdAt: string) => {
@@ -100,7 +115,21 @@ function Assistant() {
             As a TA, your changes to Office Hours needs to be approved by an
             Instructor.
           </Text>
-          <SubmitChangeRequest />
+          <Card className="card">
+            <div className="message-section">
+              <h3>Submitted Change Requests:</h3>
+              <Collapse>
+                {changeRequests.map((request, index) => (
+                  <Collapse.Panel
+                    header={`Operation: ${request.operation} | Status: ${request.status}`}
+                    key={index}
+                  >
+                    <RequestCard request={request} />
+                  </Collapse.Panel>
+                ))}
+              </Collapse>
+            </div>
+          </Card>
           <CalendarPage />
           <h2>Your Recent Office Hours</h2>
           <div>Your office hour, up to 2 months from now.</div>
@@ -188,12 +217,12 @@ function Assistant() {
           <Modal
             title="Add a Teaching Assistant"
             open={isModalVisible}
-            onOk={handleFormSubmission}
+            onOk={handleCreateForm}
             onCancel={() => setIsModalVisible(false)}
             okText="Add"
             cancelText="Cancel"
           >
-            <SubmitOfficeHour form={form} user={user} />
+            <SubmitOfficeHour form={form} />
           </Modal>
         </Content>
       </Layout>

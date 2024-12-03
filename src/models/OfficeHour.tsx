@@ -8,7 +8,7 @@ interface OfficeHour {
   endTime: string;
   location?: string;
   isRecurring: boolean;
-  recurrenceRule?: string; // oh, that stupid iCalendar RFC 5545 rule...
+  recurrenceRule?: string;
   exceptions?: string[];
 }
 

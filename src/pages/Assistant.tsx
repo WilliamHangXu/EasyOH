@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { Button, message as antdMessage, Space, List, Layout } from "antd";
+import {
+  Button,
+  message as antdMessage,
+  Space,
+  List,
+  Layout,
+  Typography,
+  Modal,
+  Form,
+} from "antd";
 import {
   getFirestore,
   doc,
@@ -17,30 +26,36 @@ import { auth } from "../config/Firebase";
 import SubmitChangeRequest from "../components/Assistant/SubmitChangeRequest";
 import CalendarPage from "./CalendarPage";
 import SubmitOfficeHour from "../components/Assistant/SubmitOfficeHour";
+import { daysOfWeek } from "../constants/daysOfWeek";
 
 const db = getFirestore();
 const { Content } = Layout;
-
-const daysOfWeek = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const { Text } = Typography;
 
 function Assistant() {
   const [user] = useAuthState(auth);
   const [officeHours, setOfficeHours] = useState<OfficeHour[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [noOh, setNoOh] = useState<boolean>(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
-    // if (!user) return;
+    if (!user) return;
 
     fetchOfficeHours();
   }, []);
+
+  const handleFormSubmission = async () => {
+    try {
+      const values = await form.validateFields(); // Validate and get form values
+      console.log("Form Data:", values);
+      setIsModalVisible(false);
+      form.resetFields();
+      // Perform further actions, e.g., save to database
+    } catch (error) {
+      console.error("Validation failed:", error);
+    }
+  };
 
   const fetchOfficeHours = async () => {
     const officeHoursQuery = query(
@@ -81,6 +96,10 @@ function Assistant() {
       <Layout className="layout">
         <Content className="content">
           <Header user={user} auth={auth} />
+          <Text>
+            As a TA, your changes to Office Hours needs to be approved by an
+            Instructor.
+          </Text>
           <SubmitChangeRequest />
           <CalendarPage />
           <h2>Your Recent Office Hours</h2>
@@ -160,8 +179,22 @@ function Assistant() {
               </List.Item>
             )}
           />
-
-          <SubmitOfficeHour user={user} />
+          <Button
+            type="primary"
+            onClick={() => setIsModalVisible(!isModalVisible)}
+          >
+            Add an Office Hour☠️
+          </Button>
+          <Modal
+            title="Add a Teaching Assistant"
+            open={isModalVisible}
+            onOk={handleFormSubmission}
+            onCancel={() => setIsModalVisible(false)}
+            okText="Add"
+            cancelText="Cancel"
+          >
+            <SubmitOfficeHour form={form} user={user} />
+          </Modal>
         </Content>
       </Layout>
     </>

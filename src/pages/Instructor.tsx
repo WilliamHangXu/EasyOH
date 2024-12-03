@@ -22,7 +22,7 @@ function Instructor() {
             <ManageTAList />
           </Col>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <ManageChangeRequest />
+            <ManageChangeRequest user={user} />
           </Col>
         </Row>
         <CalendarPage />

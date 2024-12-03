@@ -152,7 +152,7 @@ const Calendar: React.FC = () => {
           rrulePlugin,
         ]}
         initialView="timeGridWeek"
-        events={dummyRecurringEvents}
+        events={events}
         eventClick={handleEventClick}
       />
 

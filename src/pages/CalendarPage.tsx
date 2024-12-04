@@ -9,6 +9,7 @@ import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { Modal, Button } from "antd";
 import { EventInput } from "@fullcalendar/core";
 import OfficeHour from "../models/OfficeHour";
+import { DateTime } from "luxon";
 
 const Calendar: React.FC = () => {
   const [events, setEvents] = useState<EventInput[]>([]); // FullCalendar's event type
@@ -43,72 +44,97 @@ const Calendar: React.FC = () => {
   //   },
   // };
 
-  // const dummyRecurringEvents = [
-  //   {
-  //     id: "JaoT2cOf",
-  //     title: "Office Hour by",
-  //     exdate: ["2024-12-02"],
-  //     rrule: {
-  //       freq: "weekly",
-  //       byweekday: ["tu", "mo"],
-  //       dtstart: "2024-12-01T03:00:00Z",
-  //       until: "2025-01-01T03:00:00Z",
-  //       count: 5,
-  //       tzid: "GMT",
-  //     },
-  //     extendedProps: {
-  //       location: "hi",
-  //       createdBy: "mom",
-  //       createdAt: "asdf",
-  //     },
-  //   },
-  // ];
+  const dummyRecurringEvents = [
+    {
+      id: "JaoT2cOf",
+      title: "Office Hour by",
+      rrule: {
+        freq: "weekly",
+        byweekday: ["tu", "mo"],
+        dtstart: "2024-12-01T00:00:00Z",
+        count: 5,
+      },
+      exdate: ["2024-12-01T00:00:00Z"],
+      duration: { minutes: 120 },
+      extendedProps: {
+        location: "hi",
+        createdBy: "mom",
+        createdAt: "asdf",
+      },
+    },
+  ];
+
+  const timeChange = (time: string | undefined): string => {
+    console.log("before", time);
+    const t = DateTime.fromISO(time, { zone: "utc" })
+      .setZone("America/Chicago")
+      .toISO();
+    console.log("after", t);
+    return t;
+  };
+
+  const calculateDuration = (startTime: string, endTime: string) => {
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
+
+    const startTotalMinutes = startHour * 60 + startMinute;
+    const endTotalMinutes = endHour * 60 + endMinute;
+
+    return endTotalMinutes - startTotalMinutes;
+  };
 
   const mapOfficeHourToEventInput = (officeHour: OfficeHour): EventInput => {
+    if (
+      officeHour.dayOfWeek === undefined ||
+      officeHour.exceptions === undefined
+    ) {
+      return {};
+    }
     if (officeHour.isRecurring) {
       // Recurring Event
       return {
         id: officeHour.userId,
         title: `Office Hour by ${officeHour.createdBy}`,
-        tzid: "GMT",
-        // rrule: {
-        //   freq: "weekly",
-        //   // byweekday: [officeHour?.dayOfWeek],
-        //   dtstart: "2024-12-01T03:00:00Z",
-        //   until: "2025-01-01T03:00:00Z",
-        //   count: 5,
-        //   // exdate: [officeHour.exceptions],
-        // },
+        rrule: {
+          freq: "weekly",
+          byweekday: [officeHour?.dayOfWeek],
+          dtstart: timeChange(officeHour.dtStart),
+          count: 20,
+        },
+        exdate: officeHour.exceptions,
         extendedProps: {
           location: officeHour.location,
           createdBy: officeHour.createdBy,
           createdAt: officeHour.createdAt,
+          startTime: officeHour.startTime,
+          endTime: officeHour.endTime,
         },
-        startTime: officeHour.startTime,
-        endTime: officeHour.endTime,
-        daysOfWeek: [officeHour.dayOfWeek],
+        duration: {
+          minutes: calculateDuration(officeHour.startTime, officeHour.endTime),
+        },
+        color: "red",
       };
     } else {
       // One-Time Event
       if (!officeHour?.tmpDate) {
         throw new Error("Invalid input: tmpDate or startTime is missing");
       }
-      const datePart = officeHour?.tmpDate.split("T")[0];
+      // const datePart = officeHour?.tmpDate.split("T")[0];
 
-      const adjustToUTCMinus6 = (date: string, time: string): string => {
-        const utcDate = new Date(`${date}T${time}:00Z`);
-        const localDate = new Date(utcDate.getTime() + 6 * 60 * 60 * 1000); // Subtract 6 hours
-        return localDate.toISOString().replace(".000Z", "Z"); // Format to ISO string
-      };
+      // const adjustToUTCMinus6 = (date: string, time: string): string => {
+      //   const utcDate = new Date(`${date}T${time}:00Z`);
+      //   const localDate = new Date(utcDate.getTime() + 6 * 60 * 60 * 1000); // Subtract 6 hours
+      //   return localDate.toISOString().replace(".000Z", "Z"); // Format to ISO string
+      // };
 
-      const start = adjustToUTCMinus6(datePart, officeHour.startTime);
-      const end = adjustToUTCMinus6(datePart, officeHour.endTime);
+      // const start = adjustToUTCMinus6(datePart, officeHour.startTime);
+      // const end = adjustToUTCMinus6(datePart, officeHour.endTime);
 
       return {
         id: officeHour.userId,
         title: `Office Hour by ${officeHour.createdBy}`,
-        start: start,
-        end: end,
+        start: timeChange(officeHour.tmpStartTime),
+        end: timeChange(officeHour.tmpEndTime),
         extendedProps: {
           location: officeHour.location,
           createdBy: officeHour.createdBy,
@@ -154,6 +180,7 @@ const Calendar: React.FC = () => {
         initialView="timeGridWeek"
         events={events}
         eventClick={handleEventClick}
+        timeZone="UTC"
       />
 
       {selectedEvent && (

@@ -123,9 +123,9 @@ export const formToCreateRequest = async (form: any, user: FirebaseUser | null |
       note,
       ohType,
     } = form;
-  
+
     // Create the OfficeHour object
-    const primaryOH: OfficeHour = {
+    let primaryOH: OfficeHour = {
       userId: user.uid,
       createdBy: user.email,
       createdAt: dayjs().toISOString(),
@@ -134,14 +134,32 @@ export const formToCreateRequest = async (form: any, user: FirebaseUser | null |
       endTime: dayjs(endTime).format("HH:mm"),
       location: location || "FGH 201",
       isRecurring: ohType === "recurrence",
-      recurrenceRule: "",
       exceptions: [],
       tmpDate: dayjs(tmpDate).toISOString(),
     };
 
+    if (ohType === "temporary") {
+      const tDate = dayjs(tmpDate).toISOString();
+      const st = dayjs(startTime).format("HH:mm");
+      const et = dayjs(endTime).format("HH:mm");
+      const tmpStartTime = `${tDate.split("T")[0]}T${st}:00Z`;
+      const tmpEndTime = `${tDate.split("T")[0]}T${et}:00Z`;
+      primaryOH = {
+        ...primaryOH,
+        tmpDate: tmpDate,
+        tmpStartTime: tmpStartTime,
+        tmpEndTime: tmpEndTime,
+      };
+    } else {
+      primaryOH = {
+        ...primaryOH,
+        dtStart: `${dayjs().toISOString().split("T")[0]}T${dayjs(
+          startTime
+        ).format("HH:mm")}:00Z`,
+      };
+    }
+
     const userDoc = (await getDoc(doc(db, "users", user.uid))).data();
-    console.log("userDoc", userDoc);
-    // const querySnapshot = await getDocs(officeHoursQuery);
   
     // Create the ChangeRequest object
     const changeRequest: ChangeRequest = {

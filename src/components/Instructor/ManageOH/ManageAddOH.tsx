@@ -57,13 +57,11 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({ user, setOfficeHours }) => {
   });
 
   const handleAddOfficeHour = async () => {
-    const start = dayjs(`2023-01-01 ${newOfficeHour.startTime}`);
-    const end = dayjs(`2023-01-01 ${newOfficeHour.endTime}`);
+    const data = await form.validateFields();
+    console.log("hi", data);
+    const start = dayjs(`2023-01-01 ${dayjs(data.startTime).format("HH:mm")}`);
+    const end = dayjs(`2023-01-01 ${dayjs(data.endTime).format("HH:mm")}`);
 
-    if (!newOfficeHour.startTime || !newOfficeHour.endTime) {
-      antdMessage.warning("Please fill in all fields.");
-      return;
-    }
     if (!start.isBefore(end)) {
       antdMessage.error("Start time must be earlier than end time.");
       return;
@@ -74,18 +72,38 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({ user, setOfficeHours }) => {
       return;
     }
 
-    const recurrenceRule = newOfficeHour.isRecurring
-      ? `FREQ=WEEKLY;COUNT=17`
-      : "";
-
-    const newEntry = {
+    let newEntry: OfficeHour = {
       userId: user?.uid || "",
       createdBy: user?.email || "",
       createdAt: new Date().toISOString(),
-      ...newOfficeHour,
-      recurrenceRule,
+      dayOfWeek: officeHourType === "recurrence" ? data.dayOfWeek : -1,
+      isRecurring: officeHourType === "recurrence",
+      startTime: dayjs(data.startTime).format("HH:mm"),
+      endTime: dayjs(data.endTime).format("HH:mm"),
+      location: data.location || "FGH 201",
       exceptions: [],
     };
+
+    if (officeHourType === "temporary") {
+      const tmpDate = dayjs(data.tmpDate).toISOString();
+      const startTime = dayjs(data.startTime).format("HH:mm");
+      const endTime = dayjs(data.endTime).format("HH:mm");
+      const tmpStartTime = `${tmpDate.split("T")[0]}T${startTime}:00Z`;
+      const tmpEndTime = `${tmpDate.split("T")[0]}T${endTime}:00Z`;
+      newEntry = {
+        ...newEntry,
+        tmpDate: tmpDate,
+        tmpStartTime: tmpStartTime,
+        tmpEndTime: tmpEndTime,
+      };
+    } else {
+      newEntry = {
+        ...newEntry,
+        dtStart: `${dayjs().toISOString().split("T")[0]}T${dayjs(
+          data.startTime
+        ).format("HH:mm")}:00Z`,
+      };
+    }
 
     await addDoc(collection(db, "officeHours"), newEntry);
     setOfficeHours((prev) => [...prev, newEntry]);
@@ -108,7 +126,11 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({ user, setOfficeHours }) => {
       <h2>Add an Office Hour</h2>
       <p>Not feeling well? Try Edit Recent Office Hours above!</p>
       <Form form={form} layout="vertical">
-        <Form.Item label="Type of Office Hour">
+        <Form.Item
+          name="ohType"
+          label="Select a Type of Office Hour"
+          rules={[{ required: true, message: "Please select the Type!" }]}
+        >
           <Radio.Group onChange={handleTypeChange} value={officeHourType}>
             <Radio value="temporary">Temporary</Radio>
             <Radio value="recurrence">Recurrence</Radio>
@@ -133,13 +155,7 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({ user, setOfficeHours }) => {
                 name="dayOfWeek"
                 rules={[{ required: true, message: "Please select a Day!" }]}
               >
-                <Select
-                  placeholder="Select Day"
-                  onChange={(value) =>
-                    setNewOfficeHour({ ...newOfficeHour, dayOfWeek: value })
-                  }
-                  style={{ width: "100%" }}
-                >
+                <Select placeholder="Select Day" style={{ width: "100%" }}>
                   {daysOfWeek.map((day, index) => (
                     <Option key={index} value={index}>
                       {day}
@@ -155,12 +171,6 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({ user, setOfficeHours }) => {
               >
                 <DatePicker
                   placeholder="Select Date to Add Office Hour"
-                  onChange={(value) =>
-                    setNewOfficeHour({
-                      ...newOfficeHour,
-                      tmpDate: value.toISOString(),
-                    })
-                  }
                   style={{ width: "100%" }}
                 ></DatePicker>
               </Form.Item>
@@ -170,12 +180,6 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({ user, setOfficeHours }) => {
             <Form.Item label="Start Time" name="startTime" required>
               <TimePicker
                 format="HH:mm"
-                onChange={(value) =>
-                  setNewOfficeHour({
-                    ...newOfficeHour,
-                    startTime: value ? dayjs(value).format("HH:mm") : "",
-                  })
-                }
                 style={{ width: "100%" }}
                 minuteStep={15}
               />
@@ -185,29 +189,14 @@ const ManageAddOH: React.FC<ManageAddOHProps> = ({ user, setOfficeHours }) => {
             <Form.Item label="End Time" name="endTime" required>
               <TimePicker
                 format="HH:mm"
-                onChange={(value) =>
-                  setNewOfficeHour({
-                    ...newOfficeHour,
-                    endTime: value ? dayjs(value).format("HH:mm") : "",
-                  })
-                }
                 style={{ width: "100%" }}
                 minuteStep={15}
               />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Location">
-              <Input
-                placeholder="FGH 201"
-                value={newOfficeHour.location}
-                onChange={(e) =>
-                  setNewOfficeHour({
-                    ...newOfficeHour,
-                    location: e.target.value,
-                  })
-                }
-              />
+            <Form.Item label="Location" name="location">
+              <Input placeholder="FGH 201" value={newOfficeHour.location} />
             </Form.Item>
           </Col>
         </Row>

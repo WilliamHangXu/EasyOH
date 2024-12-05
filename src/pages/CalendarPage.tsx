@@ -65,11 +65,9 @@ const Calendar: React.FC = () => {
   ];
 
   const timeChange = (time: string | undefined): string => {
-    console.log("before", time);
     const t = DateTime.fromISO(time, { zone: "utc" })
       .setZone("America/Chicago")
       .toISO();
-    console.log("after", t);
     return t;
   };
 

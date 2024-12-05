@@ -138,6 +138,8 @@ export const formToCreateRequest = async (form: any, user: FirebaseUser | null |
       tmpDate: dayjs(tmpDate).toISOString(),
     };
 
+    console.log("Form Data:", primaryOH);
+
     if (ohType === "temporary") {
       const tDate = dayjs(tmpDate).toISOString();
       const st = dayjs(startTime).format("HH:mm");
@@ -146,10 +148,11 @@ export const formToCreateRequest = async (form: any, user: FirebaseUser | null |
       const tmpEndTime = `${tDate.split("T")[0]}T${et}:00Z`;
       primaryOH = {
         ...primaryOH,
-        tmpDate: tmpDate,
+        tmpDate: tDate,
         tmpStartTime: tmpStartTime,
         tmpEndTime: tmpEndTime,
       };
+      console.log("Form Data here!", primaryOH);
     } else {
       primaryOH = {
         ...primaryOH,
@@ -167,11 +170,12 @@ export const formToCreateRequest = async (form: any, user: FirebaseUser | null |
       userFirstName: userDoc?.firstName,
       userLastName: userDoc?.lastName,
       operation: "create",
-      primaryOH,
+      primaryOH: primaryOH,
       taNote: note,
       status: "pending",
       submittedAt: dayjs().toISOString(),
     };
+
   
     // Insert the ChangeRequest object into the Firebase database
     const collectionRef = collection(db, "changeRequests");

@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Button, message as antdMessage, Space, List } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, message as antdMessage, Space, List, Modal, Form } from "antd";
 import {
   getFirestore,
   doc,
@@ -18,6 +18,7 @@ import {
   expandRecurringEvents,
 } from "../../../helper/Database";
 import { daysOfWeek } from "../../../constants/daysOfWeek";
+import SubmitOfficeHour from "../../Assistant/SubmitOfficeHour";
 
 interface ManageEditDeleteOHProps {
   user: User | null | undefined;
@@ -36,6 +37,10 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
   flattenedOH,
   setFlattenedOH,
 }) => {
+  const [form] = Form.useForm();
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [selectedOH, setSelectedOH] = useState<OfficeHour | null>(null);
+
   useEffect(() => {
     setFlattenedOH(expandRecurringEvents(officeHours));
   }, [officeHours]);
@@ -61,6 +66,21 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
     setOfficeHours(oh);
     setFlattenedOH(expandRecurringEvents(oh));
   };
+
+  const handleModalOk = async () => {
+    const values = await form.validateFields();
+    const updatedData = {
+      ...selectedOH,
+      ...values,
+      startTime: values.startTime.format("HH:mm"),
+      endTime: values.endTime.format("HH:mm"),
+      tmpDate: values.tmpDate ? values.tmpDate.toISOString() : "",
+    };
+    await handleEditOfficeHour(selectedOH?.userId || "", updatedData);
+    setIsModalVisible(false); // Close the modal
+    setSelectedOH(null); // Reset selected office hour
+  };
+
   return (
     <>
       <h2>Your Upcoming Office Hours</h2>
@@ -75,12 +95,11 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
               actions={[
                 <Button
                   type="link"
-                  onClick={() =>
-                    handleEditOfficeHour(oh.userId, {
-                      ...oh,
-                      location: "Updated Location",
-                    })
-                  }
+                  onClick={() => {
+                    setSelectedOH(oh);
+                    setIsModalVisible(true);
+                    form.setFieldValue;
+                  }}
                 >
                   Edit (not working)
                 </Button>,
@@ -105,6 +124,38 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
           )
         }
       />
+
+      <Modal
+        title="Edit Office Hour"
+        open={isModalVisible}
+        onOk={handleModalOk} // Save changes
+        onCancel={() => {
+          setIsModalVisible(false);
+          setSelectedOH(null); // Reset selected office hour
+        }}
+        okText="Save"
+        cancelText="Cancel"
+      >
+        {selectedOH && (
+          <div>
+            <p>
+              <strong>Old Start time: </strong>
+            </p>{" "}
+            {selectedOH.startTime}
+            <p>
+              <strong>Old End time: </strong>
+            </p>{" "}
+            {selectedOH.endTime}
+            <p>
+              {" "}
+              <strong>Old day: </strong>
+            </p>{" "}
+            {daysOfWeek[selectedOH.dayOfWeek]}
+          </div>
+        )}
+        <SubmitOfficeHour form={form} />
+      </Modal>
+
       <h2>Your Recurrence Office Hours</h2>
       <div>
         Your permenant office hours. If you change them, all temporary Edits for
@@ -119,11 +170,18 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
               actions={[
                 <Button
                   type="link"
-                  onClick={() =>
-                    handleEditOfficeHour(oh.userId, {
+                  onClick={() => {
+                    setSelectedOH(oh);
+                    setIsModalVisible(true);
+                    form.setFieldsValue({
+                      // this is wrong!!
                       ...oh,
-                    })
-                  }
+                      dayOfWeek: oh.dayOfWeek,
+                      tmpDate: oh.tmpDate ? dayjs(oh.tmpDate) : undefined,
+                      startTime: dayjs(oh.startTime, "HH:mm"),
+                      endTime: dayjs(oh.endTime, "HH:mm"),
+                    });
+                  }}
                 >
                   Edit (not working)
                 </Button>,

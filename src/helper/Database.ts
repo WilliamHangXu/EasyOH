@@ -1,4 +1,4 @@
-import { getDocs, query, where, collection, Firestore, doc, deleteDoc, addDoc,getDoc} from "firebase/firestore";
+import { getDocs, query, where, collection, Firestore, doc, deleteDoc, addDoc, getDoc, updateDoc} from "firebase/firestore";
 import { message as antdMessage } from "antd";
 import { User as FirebaseUser } from "firebase/auth";
 import User from "../models/User";
@@ -138,8 +138,6 @@ export const formToCreateRequest = async (form: any, user: FirebaseUser | null |
       tmpDate: dayjs(tmpDate).toISOString(),
     };
 
-    console.log("Form Data:", primaryOH);
-
     if (ohType === "temporary") {
       const tDate = dayjs(tmpDate).toISOString();
       const st = dayjs(startTime).format("HH:mm");
@@ -152,7 +150,6 @@ export const formToCreateRequest = async (form: any, user: FirebaseUser | null |
         tmpStartTime: tmpStartTime,
         tmpEndTime: tmpEndTime,
       };
-      console.log("Form Data here!", primaryOH);
     } else {
       primaryOH = {
         ...primaryOH,
@@ -172,6 +169,60 @@ export const formToCreateRequest = async (form: any, user: FirebaseUser | null |
       operation: "create",
       primaryOH: primaryOH,
       taNote: note,
+      status: "pending",
+      submittedAt: dayjs().toISOString(),
+    };
+
+  
+    // Insert the ChangeRequest object into the Firebase database
+    const collectionRef = collection(db, "changeRequests");
+    await addDoc(collectionRef, changeRequest);
+    return changeRequest;
+}
+
+export const formToEditRequest = async (form: any, user: FirebaseUser | null | undefined, db: Firestore, oh1: OfficeHour, oh2: OfficeHour): Promise<ChangeRequest>  => {
+  if (!user?.uid || !user?.email) {
+    throw new Error("User ID and email is required to edit a ChangeRequest");
+  }
+
+    const userDoc = (await getDoc(doc(db, "users", user.uid))).data();
+  
+    // Create the ChangeRequest object
+    const changeRequest: ChangeRequest = {
+      userId: user.uid,
+      userFirstName: userDoc?.firstName,
+      userLastName: userDoc?.lastName,
+      operation: "edit",
+      primaryOH: oh1,
+      secondaryOH: oh2,
+      taNote: form.note,
+      status: "pending",
+      submittedAt: dayjs().toISOString(),
+    };
+
+  
+    // Insert the ChangeRequest object into the Firebase database
+    const collectionRef = collection(db, "changeRequests");
+    await addDoc(collectionRef, changeRequest);
+    return changeRequest;
+}
+
+
+export const formToDeleteRequest = async (form: any, user: FirebaseUser | null | undefined, db: Firestore, oh1: OfficeHour): Promise<ChangeRequest>  => {
+  if (!user?.uid || !user?.email) {
+    throw new Error("User ID and email is required to edit a ChangeRequest");
+  }
+
+    const userDoc = (await getDoc(doc(db, "users", user.uid))).data();
+  
+    // Create the ChangeRequest object
+    const changeRequest: ChangeRequest = {
+      userId: user.uid,
+      userFirstName: userDoc?.firstName,
+      userLastName: userDoc?.lastName,
+      operation: "delete",
+      primaryOH: oh1,
+      taNote: form.note,
       status: "pending",
       submittedAt: dayjs().toISOString(),
     };
@@ -210,6 +261,48 @@ export const fetchPendingChangeRequests = async (db: Firestore): Promise<ChangeR
     return pendingChangeRequests;
   } catch (error) {
     console.error("Error fetching pending change requests:", error);
+    throw error;
+  }
+};
+
+export const insertTemporaryOfficeHour = async (db: Firestore, officeHour: OfficeHour) => {
+  const officeHoursCollection = collection(db, "officeHours");
+
+  try {
+    const docRef = await addDoc(officeHoursCollection, officeHour);
+    console.log("Temporary office hour inserted with ID:", docRef.id);
+  } catch (error) {
+    console.error("Error inserting temporary office hour:", error);
+    throw error;
+  }
+};
+
+export const addExceptionToOfficeHour = async (db: Firestore, createdAt: string, exceptionTime: string) => {
+  const officeHoursCollection = collection(db, "officeHours");
+
+  try {
+    // Query the document by `createdAt`
+    const q = query(officeHoursCollection, where("createdAt", "==", createdAt));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.error("No matching office hour found for createdAt:", createdAt);
+      return;
+    }
+
+    // Update the first matched document
+    querySnapshot.forEach(async (docSnapshot) => {
+      const officeHourRef = doc(db, "officeHours", docSnapshot.id);
+      const currentData = docSnapshot.data();
+
+      // Add the new exception to the existing `exceptions` array
+      const updatedExceptions = [...(currentData.exceptions || []), exceptionTime];
+
+      await updateDoc(officeHourRef, { exceptions: updatedExceptions });
+      console.log("Exception added to office hour:", exceptionTime);
+    });
+  } catch (error) {
+    console.error("Error updating exceptions array:", error);
     throw error;
   }
 };

@@ -9,7 +9,7 @@ import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { Modal, Button } from "antd";
 import { EventInput } from "@fullcalendar/core";
 import OfficeHour from "../models/OfficeHour";
-import { DateTime } from "luxon";
+// import { DateTime } from "luxon";
 
 const Calendar: React.FC = () => {
   const [events, setEvents] = useState<EventInput[]>([]); // FullCalendar's event type
@@ -50,11 +50,12 @@ const Calendar: React.FC = () => {
   //     title: "Office Hour by",
   //     rrule: {
   //       freq: "weekly",
-  //       byweekday: ["tu", "mo"],
-  //       dtstart: "2024-12-01T00:00:00Z",
+  //       byweekday: [1, 2],
+  //       dtstart: "2024-12-01T19:00:00Z",
   //       count: 5,
+  //       tzid: "UTC",
   //     },
-  //     exdate: ["2024-12-01T00:00:00Z"],
+  //     // exdate: ["2024-12-01T00:00:00Z"],
   //     duration: { minutes: 120 },
   //     extendedProps: {
   //       location: "hi",
@@ -64,15 +65,14 @@ const Calendar: React.FC = () => {
   //   },
   // ];
 
-  const timeChange = (time: string | undefined): string => {
-    if(time === undefined) {
-      return '';
-    }
-    const t = DateTime.fromISO(time, { zone: "utc" })
-      .setZone("America/Chicago")
-      .toISO();
-    return t === null ? '' : t;
-  };
+
+  // const timeChange = (time: string | undefined): string => {
+  //   const t = DateTime.fromISO(time, { zone: "utc" })
+  //     .setZone("America/Chicago")
+  //     .toISO();
+  //   return t;
+  // };
+
 
   const calculateDuration = (startTime: string, endTime: string) => {
     const [startHour, startMinute] = startTime.split(":").map(Number);
@@ -95,11 +95,11 @@ const Calendar: React.FC = () => {
       // Recurring Event
       return {
         id: officeHour.userId,
-        title: `Office Hour by ${officeHour.createdBy}`,
+        title: `${officeHour.createdBy}`,
         rrule: {
           freq: "weekly",
           byweekday: [officeHour?.dayOfWeek],
-          dtstart: timeChange(officeHour.dtStart),
+          dtstart: officeHour.dtStart,
           count: 20,
         },
         exdate: officeHour.exceptions,
@@ -130,12 +130,12 @@ const Calendar: React.FC = () => {
 
       // const start = adjustToUTCMinus6(datePart, officeHour.startTime);
       // const end = adjustToUTCMinus6(datePart, officeHour.endTime);
-
+      // console.log("start", officeHour.tmpStartTime);
       return {
         id: officeHour.userId,
         title: `Office Hour by ${officeHour.createdBy}`,
-        start: timeChange(officeHour.tmpStartTime),
-        end: timeChange(officeHour.tmpEndTime),
+        start: officeHour.tmpStartTime,
+        end: officeHour.tmpEndTime,
         extendedProps: {
           location: officeHour.location,
           createdBy: officeHour.createdBy,

@@ -128,10 +128,10 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
       <Modal
         title="Edit Office Hour"
         open={isModalVisible}
-        onOk={handleModalOk} // Save changes
+        onOk={handleModalOk}
         onCancel={() => {
           setIsModalVisible(false);
-          setSelectedOH(null); // Reset selected office hour
+          setSelectedOH(null);
         }}
         okText="Save"
         cancelText="Cancel"
@@ -139,21 +139,21 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
         {selectedOH && (
           <div>
             <p>
-              <strong>Old Start time: </strong>
-            </p>{" "}
-            {selectedOH.startTime}
+              You are modifying a
+              {selectedOH.isRecurring
+                ? "n instance of a Recurring "
+                : " Temporary "}
+              event.
+            </p>
             <p>
-              <strong>Old End time: </strong>
-            </p>{" "}
-            {selectedOH.endTime}
-            <p>
-              {" "}
-              <strong>Old day: </strong>
-            </p>{" "}
-            {daysOfWeek[selectedOH.dayOfWeek]}
+              <strong>Old time: </strong>
+              {selectedOH.dayOfWeek !== undefined &&
+                daysOfWeek[selectedOH.dayOfWeek]}{" "}
+              {selectedOH.startTime} - {selectedOH.endTime}
+            </p>
           </div>
         )}
-        <SubmitOfficeHour form={form} />
+        <SubmitOfficeHour form={form} isInsturctor={true} isEditing={true} />
       </Modal>
 
       <h2>Your Recurrence Office Hours</h2>

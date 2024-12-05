@@ -150,7 +150,8 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
               {" "}
               <strong>Old day: </strong>
             </p>{" "}
-            {daysOfWeek[selectedOH.dayOfWeek]}
+            {selectedOH.dayOfWeek !== undefined &&
+                daysOfWeek[selectedOH.dayOfWeek]}
           </div>
         )}
         <SubmitOfficeHour form={form} />

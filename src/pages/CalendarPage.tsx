@@ -44,31 +44,34 @@ const Calendar: React.FC = () => {
   //   },
   // };
 
-  const dummyRecurringEvents = [
-    {
-      id: "JaoT2cOf",
-      title: "Office Hour by",
-      rrule: {
-        freq: "weekly",
-        byweekday: ["tu", "mo"],
-        dtstart: "2024-12-01T00:00:00Z",
-        count: 5,
-      },
-      exdate: ["2024-12-01T00:00:00Z"],
-      duration: { minutes: 120 },
-      extendedProps: {
-        location: "hi",
-        createdBy: "mom",
-        createdAt: "asdf",
-      },
-    },
-  ];
+  // const dummyRecurringEvents = [
+  //   {
+  //     id: "JaoT2cOf",
+  //     title: "Office Hour by",
+  //     rrule: {
+  //       freq: "weekly",
+  //       byweekday: ["tu", "mo"],
+  //       dtstart: "2024-12-01T00:00:00Z",
+  //       count: 5,
+  //     },
+  //     exdate: ["2024-12-01T00:00:00Z"],
+  //     duration: { minutes: 120 },
+  //     extendedProps: {
+  //       location: "hi",
+  //       createdBy: "mom",
+  //       createdAt: "asdf",
+  //     },
+  //   },
+  // ];
 
   const timeChange = (time: string | undefined): string => {
+    if(time === undefined) {
+      return '';
+    }
     const t = DateTime.fromISO(time, { zone: "utc" })
       .setZone("America/Chicago")
       .toISO();
-    return t;
+    return t === null ? '' : t;
   };
 
   const calculateDuration = (startTime: string, endTime: string) => {

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview", 
+    "serve": "serve -s dist -l 5000"
   },
   "dependencies": {
     "@fullcalendar/react": "^6.1.15",
@@ -18,6 +19,7 @@
     "fullcalendar": "^6.1.15",
     "gapi-script": "^1.2.0",
     "luxon": "^3.5.0",
+    "moment": "^2.30.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-firebase-hooks": "^5.1.1",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@types/luxon": "^3.4.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",

@@ -1,26 +1,33 @@
-FROM node:18-alpine as BUILD_IMAGE
+# Stage 1: Build the app
+FROM node:16-alpine AS build
 
-WORKDIR /app/react-app
+# Set the working directory
+WORKDIR /app
 
-COPY package.json .
+# Copy package.json and package-lock.json (if available)
+COPY package*.json ./
 
-RUN npm install
+# Install dependencies
+RUN npm ci
 
+
+# Copy the rest of your application's code
 COPY . .
 
+# Build the application
 RUN npm run build
 
-# multi-stage build. Reduce size and won't expose code.
-FROM node:18-alpine as PRODUCTION_IMAGE
-WORKDIR /app/react-app
+# Stage 2: Serve the app with Nginx
+FROM nginx:stable-alpine
 
-# copying from build_image to dist folder. This folder is Vite used to generate build files
-COPY --from=BUILD_IMAGE /app/react-app/dist/ /app/react-app/dist/
+# Copy the built files from the previous stage to Nginx's default directory
+COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 8080
+# Expose port 80
+EXPOSE 80
 
-COPY package.json .
-COPY vite.config.ts .
-RUN npm install typescript
+# Optional: Copy custom Nginx configuration if needed
+# COPY nginx.conf /etc/nginx/nginx.conf
 
-CMD ["npm", "run", "preview"]
+# Start Nginx server
+CMD ["nginx", "-g", "daemon off;"]

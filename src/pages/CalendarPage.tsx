@@ -65,12 +65,14 @@ const Calendar: React.FC = () => {
   //   },
   // ];
 
+
   // const timeChange = (time: string | undefined): string => {
   //   const t = DateTime.fromISO(time, { zone: "utc" })
   //     .setZone("America/Chicago")
   //     .toISO();
   //   return t;
   // };
+
 
   const calculateDuration = (startTime: string, endTime: string) => {
     const [startHour, startMinute] = startTime.split(":").map(Number);

@@ -6,7 +6,6 @@ import {
   collection,
   getDocs,
   deleteDoc,
-  updateDoc,
   query,
   where,
 } from "firebase/firestore";
@@ -19,6 +18,10 @@ import {
 } from "../../../helper/Database";
 import { daysOfWeek } from "../../../constants/daysOfWeek";
 import SubmitOfficeHour from "../../Assistant/SubmitOfficeHour";
+import {
+  insertTemporaryOfficeHour,
+  addExceptionToOfficeHour,
+} from "../../../helper/Database";
 
 interface ManageEditDeleteOHProps {
   user: User | null | undefined;
@@ -57,11 +60,8 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
     setFlattenedOH(expandRecurringEvents(oh));
   };
 
-  const handleEditOfficeHour = async (
-    id: string,
-    updatedData: Partial<OfficeHour>
-  ) => {
-    await updateDoc(doc(db, "officeHours", id), updatedData);
+  const handleDeleteTmp = async (createdAt: string) => {
+    await addExceptionToOfficeHour(db, createdAt, dayjs().toISOString());
     const oh = await fetchAllOHByID(db, user?.uid || "");
     setOfficeHours(oh);
     setFlattenedOH(expandRecurringEvents(oh));
@@ -69,14 +69,37 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
 
   const handleModalOk = async () => {
     const values = await form.validateFields();
+    const tDate = dayjs(values.tmpDate).toISOString();
+    const st = dayjs(values.startTime).format("HH:mm");
+    const et = dayjs(values.endTime).format("HH:mm");
+    const tmpStartTime = `${tDate.split("T")[0]}T${st}:00Z`;
+    const tmpEndTime = `${tDate.split("T")[0]}T${et}:00Z`;
+
     const updatedData = {
       ...selectedOH,
       ...values,
+      isRecurring: false,
       startTime: values.startTime.format("HH:mm"),
       endTime: values.endTime.format("HH:mm"),
       tmpDate: values.tmpDate ? values.tmpDate.toISOString() : "",
+      tmpStartTime: tmpStartTime,
+      tmpEndTime: tmpEndTime,
     };
-    await handleEditOfficeHour(selectedOH?.userId || "", updatedData);
+
+    await insertTemporaryOfficeHour(db, updatedData);
+
+    if (selectedOH?.createdAt && selectedOH?.tmpStartTime) {
+      await addExceptionToOfficeHour(
+        db,
+        selectedOH.createdAt,
+        selectedOH.tmpStartTime
+      );
+    }
+
+    const oh = await fetchAllOHByID(db, user?.uid || "");
+    setOfficeHours(oh);
+    setFlattenedOH(expandRecurringEvents(oh));
+
     setIsModalVisible(false); // Close the modal
     setSelectedOH(null); // Reset selected office hour
   };
@@ -101,12 +124,12 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
                     form.setFieldValue;
                   }}
                 >
-                  Edit (not working)
+                  Edit
                 </Button>,
                 <Button
                   type="link"
                   danger
-                  onClick={() => handleDeleteOfficeHour(oh.createdAt)}
+                  onClick={() => handleDeleteTmp(oh.createdAt)}
                 >
                   Delete
                 </Button>,
@@ -128,10 +151,10 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
       <Modal
         title="Edit Office Hour"
         open={isModalVisible}
-        onOk={handleModalOk} // Save changes
+        onOk={handleModalOk}
         onCancel={() => {
           setIsModalVisible(false);
-          setSelectedOH(null); // Reset selected office hour
+          setSelectedOH(null);
         }}
         okText="Save"
         cancelText="Cancel"
@@ -139,21 +162,21 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
         {selectedOH && (
           <div>
             <p>
-              <strong>Old Start time: </strong>
-            </p>{" "}
-            {selectedOH.startTime}
+              You are modifying a
+              {selectedOH.isRecurring
+                ? "n instance of a Recurring "
+                : " Temporary "}
+              event.
+            </p>
             <p>
-              <strong>Old End time: </strong>
-            </p>{" "}
-            {selectedOH.endTime}
-            <p>
-              {" "}
-              <strong>Old day: </strong>
-            </p>{" "}
-            {daysOfWeek[selectedOH.dayOfWeek]}
+              <strong>Old time: </strong>
+              {selectedOH.dayOfWeek !== undefined &&
+                daysOfWeek[selectedOH.dayOfWeek]}{" "}
+              {selectedOH.startTime} - {selectedOH.endTime}
+            </p>
           </div>
         )}
-        <SubmitOfficeHour form={form} />
+        <SubmitOfficeHour form={form} isInsturctor={true} isEditing={true} />
       </Modal>
 
       <h2>Your Recurrence Office Hours</h2>
@@ -174,7 +197,7 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
                     setSelectedOH(oh);
                     setIsModalVisible(true);
                     form.setFieldsValue({
-                      // this is wrong!!
+                      // NOTE: THIS IS WRONG!!! FIX ME!!!
                       ...oh,
                       dayOfWeek: oh.dayOfWeek,
                       tmpDate: oh.tmpDate ? dayjs(oh.tmpDate) : undefined,
@@ -183,7 +206,7 @@ const ManageEditDeleteOH: React.FC<ManageEditDeleteOHProps> = ({
                     });
                   }}
                 >
-                  Edit (not working)
+                  Edit
                 </Button>,
                 <Button
                   type="link"

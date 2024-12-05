@@ -17,9 +17,15 @@ const { TextArea } = Input;
 
 interface SubmitOHProps {
   form: any;
+  isInsturctor?: boolean;
+  isEditing?: boolean;
 }
 
-const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ form }) => {
+const SubmitOfficeHour: React.FC<SubmitOHProps> = ({
+  form,
+  isInsturctor,
+  isEditing,
+}) => {
   const [officeHourType, setOfficeHourType] = useState<
     "temporary" | "recurrence"
   >("temporary");
@@ -38,16 +44,22 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ form }) => {
   return (
     <>
       <Form layout="vertical" form={form}>
-        <Form.Item
-          name="ohType"
-          label="Select a Type of Office Hour"
-          rules={[{ required: true, message: "Please select the Type!" }]}
-        >
-          <Radio.Group onChange={handleTypeChange} value={officeHourType}>
-            <Radio value="temporary">Temporary</Radio>
-            <Radio value="recurrence">Recurrence</Radio>
-          </Radio.Group>
-        </Form.Item>
+        {!isEditing ? (
+          <Form.Item
+            name="ohType"
+            label="Select a Type of Office Hour"
+            rules={[{ required: true, message: "Please select the Type!" }]}
+          >
+            <Radio.Group onChange={handleTypeChange} value={officeHourType}>
+              <Radio value="temporary">Temporary</Radio>
+              <Radio value="recurrence">Recurrence</Radio>
+            </Radio.Group>
+          </Form.Item>
+        ) : (
+          <>
+            <strong>Select New time:</strong>
+          </>
+        )}
 
         {showWarning && (
           <Alert
@@ -103,11 +115,13 @@ const SubmitOfficeHour: React.FC<SubmitOHProps> = ({ form }) => {
               <Input placeholder="FGH 201" />
             </Form.Item>
           </Col>
-          <Col span={24}>
-            <Form.Item label="Note to Instructor" name="note">
-              <TextArea placeholder="Reason for the change" />
-            </Form.Item>
-          </Col>
+          {!isInsturctor && (
+            <Col span={24}>
+              <Form.Item label="Note to Instructor" name="note">
+                <TextArea placeholder="Reason for the change" />
+              </Form.Item>
+            </Col>
+          )}
         </Row>
       </Form>
     </>

@@ -179,6 +179,8 @@ const Calendar: React.FC = () => {
         events={events}
         eventClick={handleEventClick}
         timeZone="UTC"
+        slotMinTime="09:00:00" // Start time at 9 AM
+        slotMaxTime="22:00:00" // End time at 9 PM
       />
 
       {selectedEvent && (

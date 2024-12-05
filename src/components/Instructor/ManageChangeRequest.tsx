@@ -1,9 +1,11 @@
-import { Button, Card, Collapse, message as antdMessage } from "antd";
+import { Button, Card, Collapse, message as antdMessage, Row, Col } from "antd";
+
 import { User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import ChangeRequest from "../../models/ChangeRequest";
 import { fetchPendingChangeRequests } from "../../helper/Database";
 import { getFirestore, updateDoc, doc } from "firebase/firestore";
+import moment from 'moment';
 
 function ManageChangeRequest({ user }: { user: User | null | undefined }) {
   const db = getFirestore();
@@ -62,10 +64,7 @@ function ManageChangeRequest({ user }: { user: User | null | undefined }) {
                     {cr.primaryOH.isRecurring ? "Yes" : "No"}
                   </p>
                   <p>
-                    <strong>Start Time:</strong> {cr.primaryOH.startTime}
-                  </p>
-                  <p>
-                    <strong>End Time:</strong> {cr.primaryOH.endTime}
+                    <strong>Time:</strong> {cr.primaryOH.startTime} - {cr.primaryOH.endTime}
                   </p>
                   <p>
                     <strong>Location:</strong> {cr.primaryOH.location}
@@ -76,26 +75,38 @@ function ManageChangeRequest({ user }: { user: User | null | undefined }) {
                     </p>
                   )}
                   <p>
-                    <strong>Submitted At:</strong> {cr.submittedAt}
+                  <p>
+                    <strong>Submitted At:</strong>{" "}
+                    {moment.utc(cr.submittedAt).format('YYYY-MM-DD [at] HH:mm')}
+                  </p>
+
+
                   </p>
                   <p>
                     <strong>TA Note:</strong> {cr.taNote || "No note provided"}
                   </p>
                   <div className="action-buttons">
-                    <Button
-                      type="primary"
-                      style={{ marginRight: "10px" }}
-                      onClick={() => handleApprove(cr?.docId)}
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      type="default"
-                      danger
-                      onClick={() => handleReject(cr?.docId)}
-                    >
-                      Reject
-                    </Button>
+                    <Row gutter={120}>
+                      <Col span={12}>
+                        <Button
+                          type="primary"
+                          style={{ width: "240%", margin: 0, padding: 0, height: "30px", fontSize: "18px" }}
+                          onClick={() => handleApprove(cr?.docId)}
+                        >
+                          Approve
+                        </Button>
+                      </Col>
+                      <Col span={12}>
+                        <Button
+                          type="default"
+                          danger
+                          style={{ width: "240%", margin: 0, padding: 0, height: "30px", fontSize: "18px" }}
+                          onClick={() => handleReject(cr?.docId)}
+                        >
+                          Reject
+                        </Button>
+                      </Col>
+                    </Row>
                   </div>
                 </div>
               </Collapse.Panel>
